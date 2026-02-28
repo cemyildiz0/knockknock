@@ -25,10 +25,6 @@ export default function Home() {
           />
         ))}
       </div>
-
-      <Link href="/mapOverview" className="text-blue-400 underline">
-        Go to Map
-    </Link>
     </div>
 
     
