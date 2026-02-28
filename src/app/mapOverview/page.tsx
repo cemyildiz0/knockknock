@@ -2,9 +2,6 @@
 
 import dynamic from "next/dynamic";
 
-import Link from "next/link";
-
-
 const Map = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
@@ -14,15 +11,10 @@ const Map = dynamic(() => import("@/components/Map"), {
   ),
 });
 
-export default function mapOverview(): JSX.Element {
+export default function MapOverview() {
   return (
     <main className="h-full w-full">
       <Map />
-
-      <Link href="/about" className="text-blue-400 underline">
-        Go to About
-        \</Link>
-      
     </main>
   );
 }
