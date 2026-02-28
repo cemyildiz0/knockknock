@@ -200,7 +200,7 @@ export default function Map() {
       />
       <LayerControls layers={layerVisibility} onToggle={handleLayerToggle} />
 
-      <div className="absolute top-4 right-4 z-[1000] bg-neutral-900 text-neutral-100 px-3 py-2 rounded text-sm">
+      <div className="absolute top-4 right-4 z-[1000] bg-white border border-gray-200 text-brand-navy px-3 py-2 rounded-lg text-sm">
         {loading ? (
           <span>Loading...</span>
         ) : (

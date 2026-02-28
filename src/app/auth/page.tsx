@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase-browser";
 
 type Mode = "login" | "signup";
@@ -64,51 +66,74 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex-1 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold tracking-tight text-neutral-100">
-            knock knock.
-          </h1>
-          <p className="mt-2 text-sm text-neutral-500">
-            {mode === "login" ? "Welcome back." : "Create your account."}
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left panel -- hero branding */}
+      <div className="relative lg:w-[45%] xl:w-[50%] shrink-0 h-48 sm:h-56 lg:h-auto lg:min-h-screen overflow-hidden bg-brand-navy">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-15"
+          style={{ backgroundImage: "url('/assets/hero-neighborhood.jpeg')" }}
+        />
+        <div className="absolute inset-0 bg-brand-navy/30" />
+
+        <div className="relative z-10 flex flex-col items-center justify-center h-full px-8 py-10 lg:py-0">
+          <Link href="/" className="mb-6">
+            <Image
+              src="/assets/logo-white.PNG"
+              alt="KnockKnock"
+              width={340}
+              height={80}
+              className="h-16 lg:h-20 w-auto"
+            />
+          </Link>
+          <p className="text-white/40 text-sm lg:text-base text-center max-w-xs hidden lg:block">
+            Find your perfect neighborhood in Irvine.
           </p>
         </div>
+      </div>
 
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-8">
-          <div className="flex mb-8 border-b border-neutral-800">
+      {/* Right panel -- form */}
+      <div className="flex-1 flex items-start lg:items-center justify-center bg-[#F8FAF7] px-5 sm:px-8 py-10 lg:py-16">
+        <div className="w-full max-w-[420px]">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-extrabold text-brand-navy tracking-tight">
+              {mode === "login" ? "Welcome back" : "Create your account"}
+            </h1>
+            <p className="text-brand-teal text-sm mt-1.5">
+              {mode === "login"
+                ? "Sign in to continue exploring."
+                : "Join the community and start reviewing."}
+            </p>
+          </div>
+
+          {/* Mode tabs */}
+          <div className="flex mb-8 border-b border-gray-200">
             <button
               type="button"
               onClick={() => switchMode("login")}
-              className={`flex-1 pb-3 text-sm font-medium transition-colors relative ${
+              className={`pb-3 px-1 mr-6 text-sm font-semibold transition-colors border-b-2 -mb-px ${
                 mode === "login"
-                  ? "text-neutral-100"
-                  : "text-neutral-500 hover:text-neutral-300"
+                  ? "border-brand-orange text-brand-navy"
+                  : "border-transparent text-brand-teal hover:text-brand-navy"
               }`}
             >
               Log In
-              {mode === "login" && (
-                <span className="absolute bottom-0 left-0 right-0 h-px bg-neutral-100" />
-              )}
             </button>
             <button
               type="button"
               onClick={() => switchMode("signup")}
-              className={`flex-1 pb-3 text-sm font-medium transition-colors relative ${
+              className={`pb-3 px-1 text-sm font-semibold transition-colors border-b-2 -mb-px ${
                 mode === "signup"
-                  ? "text-neutral-100"
-                  : "text-neutral-500 hover:text-neutral-300"
+                  ? "border-brand-orange text-brand-navy"
+                  : "border-transparent text-brand-teal hover:text-brand-navy"
               }`}
             >
               Sign Up
-              {mode === "signup" && (
-                <span className="absolute bottom-0 left-0 right-0 h-px bg-neutral-100" />
-              )}
             </button>
           </div>
 
           {error && (
-            <div className="mb-6 rounded-lg border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm text-red-400">
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
             </div>
           )}
@@ -116,64 +141,64 @@ export default function AuthPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {mode === "signup" && (
               <div>
-                <label htmlFor="displayName" className="sr-only">
+                <label htmlFor="displayName" className="block text-xs font-medium text-brand-navy/70 mb-2">
                   Display Name
                 </label>
                 <div className="relative">
                   <User
                     size={16}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500"
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-teal/60"
                   />
                   <input
                     id="displayName"
                     type="text"
-                    placeholder="Display name (optional)"
+                    placeholder="How others will see you"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full rounded-lg border border-neutral-800 bg-neutral-950 py-3 pl-10 pr-4 text-sm text-neutral-100 placeholder-neutral-600 outline-none transition-colors focus:border-neutral-600"
+                    className="w-full rounded-lg border border-gray-200 bg-white py-3 pl-10 pr-4 text-sm text-brand-navy placeholder-gray-400 outline-none transition-all focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/10"
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="sr-only">
+              <label htmlFor="email" className="block text-xs font-medium text-brand-navy/70 mb-2">
                 Email
               </label>
               <div className="relative">
                 <Mail
                   size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-teal/60"
                 />
                 <input
                   id="email"
                   type="email"
                   required
-                  placeholder="Email address"
+                  placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-neutral-800 bg-neutral-950 py-3 pl-10 pr-4 text-sm text-neutral-100 placeholder-neutral-600 outline-none transition-colors focus:border-neutral-600"
+                  className="w-full rounded-lg border border-gray-200 bg-white py-3 pl-10 pr-4 text-sm text-brand-navy placeholder-gray-400 outline-none transition-all focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/10"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-xs font-medium text-brand-navy/70 mb-2">
                 Password
               </label>
               <div className="relative">
                 <Lock
                   size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-teal/60"
                 />
                 <input
                   id="password"
                   type="password"
                   required
-                  placeholder="Password"
+                  placeholder="At least 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-lg border border-neutral-800 bg-neutral-950 py-3 pl-10 pr-4 text-sm text-neutral-100 placeholder-neutral-600 outline-none transition-colors focus:border-neutral-600"
+                  className="w-full rounded-lg border border-gray-200 bg-white py-3 pl-10 pr-4 text-sm text-brand-navy placeholder-gray-400 outline-none transition-all focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/10"
                 />
               </div>
             </div>
@@ -181,7 +206,7 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-100 py-3 text-sm font-medium text-neutral-900 transition-colors hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group flex w-full items-center justify-center gap-2 rounded-lg bg-brand-orange py-3 text-sm font-bold text-brand-navy transition-colors hover:bg-[#f0a44e] disabled:opacity-50 disabled:cursor-not-allowed mt-1"
             >
               {loading ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -196,18 +221,18 @@ export default function AuthPage() {
               )}
             </button>
           </form>
-        </div>
 
-        <p className="mt-6 text-center text-xs text-neutral-600">
-          {mode === "login" ? "Don't have an account? " : "Already have an account? "}
-          <button
-            type="button"
-            onClick={() => switchMode(mode === "login" ? "signup" : "login")}
-            className="text-neutral-400 hover:text-neutral-200 transition-colors"
-          >
-            {mode === "login" ? "Sign up" : "Log in"}
-          </button>
-        </p>
+          <p className="mt-8 text-center text-xs text-brand-teal">
+            {mode === "login" ? "Don't have an account? " : "Already have an account? "}
+            <button
+              type="button"
+              onClick={() => switchMode(mode === "login" ? "signup" : "login")}
+              className="text-brand-orange font-medium hover:underline transition-colors"
+            >
+              {mode === "login" ? "Sign up" : "Log in"}
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );

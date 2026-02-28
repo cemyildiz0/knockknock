@@ -1,16 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { LogIn, LogOut, UserCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [user, setUser] = useState<User | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const supabase = createClient();
+
+  const handleScroll = useCallback(() => {
+    const isScrolled = window.scrollY > 40;
+    setScrolled((prev) => (prev !== isScrolled ? isScrolled : prev));
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -33,46 +47,53 @@ export default function Navbar() {
     router.refresh();
   }
 
+  if (pathname === "/auth") return null;
+
   return (
-    <nav className="bg-white text-black px-6 py-4 flex items-center justify-between font-bold">
-      <div className="text-2xl font-bold">
-        <Link href="/">knock knock.</Link>
-      </div>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color] duration-300 ease-out border-b ${
+        scrolled
+          ? "bg-brand-navy/95 backdrop-blur-md border-white/5"
+          : "bg-transparent backdrop-blur-none border-transparent"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
+        <Link href="/" className="hover:opacity-80 transition-opacity">
+          <Image
+            src="/assets/logo-white.PNG"
+            alt="KnockKnock"
+            width={140}
+            height={32}
+            className="h-11 w-auto"
+          />
+        </Link>
 
-      <div className="flex items-center gap-6 text-black">
-        <Link href="/" className="hover:text-orange-300 transition">
-          Home
-        </Link>
-        <Link href="/mapOverview" className="hover:text-orange-300 transition">
-          Explore
-        </Link>
-        <Link href="/" className="hover:text-orange-300 transition">
-          Saved
-        </Link>
-
-        {user ? (
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-black">
-              <UserCircle size={18} className="text-neutral-500" />
-              <span>{user.user_metadata?.display_name || user.email}</span>
+        <div className="flex items-center gap-3">
+          {user ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
+                <UserCircle size={15} className="text-brand-mint" />
+                <span className="text-sm text-white/90 hidden sm:inline">
+                  {user.user_metadata?.display_name || user.email?.split("@")[0]}
+                </span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 text-white/40 hover:text-white transition-colors text-sm"
+              >
+                <LogOut size={14} />
+              </button>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 text-neutral-400 hover:text-white transition"
+          ) : (
+            <Link
+              href="/auth"
+              className="flex items-center gap-1.5 bg-brand-orange hover:bg-[#f0a44e] text-brand-navy font-semibold text-sm px-4 py-2 rounded-full transition-colors"
             >
-              <LogOut size={16} />
-              <span className="text-sm">Log Out</span>
-            </button>
-          </div>
-        ) : (
-          <Link
-            href="/auth"
-            className="flex items-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-1.5 text-sm text-black hover:border-neutral-500 hover:text-white transition"
-          >
-            <LogIn size={16} />
-            <span>Log In</span>
-          </Link>
-        )}
+              <LogIn size={13} />
+              Sign In
+            </Link>
+          )}
+        </div>
       </div>
     </nav>
   );
