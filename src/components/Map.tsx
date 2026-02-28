@@ -5,6 +5,10 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaf
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import { supabase } from "@/lib/supabase";
+import type { LivabilityRegion } from "@/types/livability";
+import LivabilityLayer from "@/components/LivabilityLayer";
+import LivabilityLegend from "@/components/LivabilityLegend";
+import LivabilitySidebar from "@/components/LivabilitySidebar";
 
 import "leaflet/dist/leaflet.css";
 
@@ -62,6 +66,24 @@ export default function Map() {
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [regions, setRegions] = useState<LivabilityRegion[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState<LivabilityRegion | null>(null);
+
+  useEffect(() => {
+    async function fetchRegions() {
+      const { data, error } = await supabase
+        .from("livability_regions")
+        .select("*");
+
+      if (error) {
+        console.error("Error fetching livability regions:", error.message);
+        return;
+      }
+
+      setRegions(data ?? []);
+    }
+    fetchRegions();
+  }, []);
 
   const fetchPoints = useCallback(async (bounds: L.LatLngBounds) => {
     if (abortControllerRef.current) {
@@ -111,6 +133,7 @@ export default function Map() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapEvents onBoundsChange={fetchPoints} />
+        <LivabilityLayer regions={regions} onRegionClick={setSelectedRegion} />
         <MarkerClusterGroup chunkedLoading>
           {points.map((point) => (
             <Marker
@@ -130,6 +153,8 @@ export default function Map() {
           ))}
         </MarkerClusterGroup>
       </MapContainer>
+      <LivabilitySidebar region={selectedRegion} onClose={() => setSelectedRegion(null)} />
+      <LivabilityLegend />
       <div className="absolute top-4 right-4 z-[1000] bg-neutral-900 text-neutral-100 px-3 py-2 rounded text-sm">
         {loading ? (
           <span>Loading...</span>
