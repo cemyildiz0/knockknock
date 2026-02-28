@@ -51,7 +51,7 @@ export default function HeroSection() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/assets/hero-neighborhood.jpeg')" }}
       />
-      <div className="absolute inset-0 bg-brand-navy/80" />
+      <div className="absolute inset-0 bg-[#091425]/70" />
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 pt-32 pb-16 text-center">
         <h1 className="text-3xl sm:text-4xl font-extrabold leading-snug tracking-tight text-white mb-3">
