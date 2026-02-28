@@ -1,11 +1,11 @@
 ## TO-DOs
 
 ## FEATURES
-[ ] Home Page: Displays reconmended neighborhoods nearby, using user's pinpoint location. 
-[ ] Neighborhoods: Each neighborhood has a list of reviews, summarized scores on livibility, safety, ease of transport, enviormental, etc.
-[ ] Reviews: Users can leave reviews on neighborhoods, scoring out of 5 across different categories
-[ ] Map: A different tab, using pin point location the map will display nearby neighboorhoods with pins that the user can click onto to 
-[ ] Customized AI Search Bar: The search bar is an AI that will take the user input to 
+[ ] Home Page: Displays reconmended neighborhoods nearby, using user's pinpoint location.  
+[ ] Neighborhoods: Each neighborhood has a list of reviews, summarized scores on livibility, safety, ease of transport, enviormental, etc.  
+[ ] Reviews: Users can leave reviews on neighborhoods, scoring out of 5 across different categories  
+[ ] Map: A different tab, using pin point location the map will display nearby neighboorhoods with pins that the user can click onto to  
+[ ] Customized AI Search Bar: The search bar is an AI that will take the user input to   
 
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
