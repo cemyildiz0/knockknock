@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 
   const { data, error, count } = await supabase
     .from("community_neighborhoods")
-    .select("id, geo_id, legacy_id, name, area_sqmi, center_lat, center_lng", {
+    .select("id, geo_id, legacy_id, name, area_sqmi, center_lat, center_lng, image_url, description, city, state, rating, review_count", {
       count: "exact",
     })
     .order("name")
