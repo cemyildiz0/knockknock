@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Check,
   Loader2,
+  Search,
 } from "lucide-react";
 
 interface Recommendation {
@@ -60,16 +61,104 @@ function StarBar({ rating, size = 14 }: { rating: number; size?: number }) {
 }
 
 function ScoreBadge({ score }: { score: number }) {
-  let color = "bg-red-100 text-red-700";
+  let color = "bg-red-500/10 text-red-600";
   if (score >= 80) color = "bg-brand-mint/30 text-brand-teal-dark";
   else if (score >= 60) color = "bg-brand-orange/15 text-brand-orange";
   else if (score >= 40) color = "bg-yellow-100 text-yellow-700";
 
   return (
-    <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${color}`}>
-      <Sparkles size={10} />
-      {score}% match
+    <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${color}`}>
+      <Sparkles size={9} />
+      {score}%
     </div>
+  );
+}
+
+function ResultCard({ rec, rank }: { rec: Recommendation; rank: number }) {
+  return (
+    <Link
+      href={`/neighborhood/${rec.neighborhood_id}`}
+      className="group block bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-brand-teal/25 transition-all duration-200 break-inside-avoid mb-5"
+    >
+      <div className={`relative w-full overflow-hidden ${rank === 1 ? "h-56" : "h-40"}`}>
+        {rec.neighborhood?.image_url ? (
+          <Image
+            src={rec.neighborhood.image_url}
+            alt={rec.neighborhood_name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          />
+        ) : (
+          <div className="w-full h-full bg-brand-navy/5 flex items-center justify-center">
+            <MapPin size={24} className="text-brand-teal/25" />
+          </div>
+        )}
+
+        {rec.neighborhood?.image_url && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        )}
+
+        <div className="absolute top-3 left-3 w-7 h-7 rounded-lg bg-brand-navy/80 backdrop-blur-sm flex items-center justify-center text-white text-xs font-bold">
+          {rank}
+        </div>
+
+        <div className="absolute top-3 right-3">
+          <ScoreBadge score={rec.score} />
+        </div>
+
+        {rank === 1 && (
+          <div className="absolute bottom-3 left-4 right-4">
+            <h3 className="text-lg font-bold text-white leading-tight">{rec.neighborhood_name}</h3>
+            {rec.neighborhood && (rec.neighborhood.city || rec.neighborhood.state) && (
+              <div className="flex items-center gap-1 text-white/70 text-xs mt-0.5">
+                <MapPin size={10} />
+                {[rec.neighborhood.city, rec.neighborhood.state].filter(Boolean).join(", ")}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="p-4">
+        {rank !== 1 && (
+          <>
+            <h3 className="font-bold text-brand-navy text-base leading-snug mb-1 group-hover:text-brand-teal-dark transition-colors">
+              {rec.neighborhood_name}
+            </h3>
+            {rec.neighborhood && (rec.neighborhood.city || rec.neighborhood.state) && (
+              <div className="flex items-center gap-1 text-brand-teal text-xs mb-2">
+                <MapPin size={10} />
+                {[rec.neighborhood.city, rec.neighborhood.state].filter(Boolean).join(", ")}
+              </div>
+            )}
+          </>
+        )}
+
+        {rec.neighborhood?.rating != null && (
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <StarBar rating={rec.neighborhood.rating} />
+            <span className="text-xs font-bold text-brand-navy">{rec.neighborhood.rating.toFixed(1)}</span>
+            {rec.neighborhood.review_count != null && (
+              <span className="text-[11px] text-brand-teal">({rec.neighborhood.review_count})</span>
+            )}
+          </div>
+        )}
+
+        <p className="text-xs text-gray-500 leading-relaxed line-clamp-3 mb-3">{rec.reasoning}</p>
+
+        <div className="flex flex-wrap gap-1.5">
+          {rec.highlights.map((h) => (
+            <span
+              key={h}
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-brand-teal-dark bg-brand-teal/10 px-2 py-1 rounded"
+            >
+              <Check size={9} className="text-brand-teal shrink-0" strokeWidth={3} />
+              {h}
+            </span>
+          ))}
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -139,19 +228,27 @@ function SearchResultsContent() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F8FAF7] pt-16">
-      {/* Search bar */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center gap-3">
+    <main className="min-h-screen bg-[#F8FAF7]">
+      {/* Hero-style search header */}
+      <div className="relative w-full overflow-hidden bg-brand-navy">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+          style={{ backgroundImage: "url('/assets/hero-neighborhood.jpeg')" }}
+        />
+        <div className="relative z-10 max-w-2xl mx-auto px-6 pt-28 pb-10">
+          <div className="flex items-center gap-3 mb-5">
             <Link
               href="/"
-              className="text-brand-teal hover:text-brand-navy transition-colors shrink-0"
+              className="text-white/50 hover:text-white transition-colors shrink-0"
             >
               <ArrowLeft size={18} />
             </Link>
-            <div className="flex-1 flex items-start gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 focus-within:border-brand-orange transition-colors">
-              <Sparkles size={16} className="text-brand-orange shrink-0 mt-0.5" />
+            <h1 className="text-lg font-bold text-white">AI Search</h1>
+          </div>
+
+          <div className="bg-white rounded-2xl overflow-hidden ring-4 ring-white/10">
+            <div className="flex items-start gap-3 p-4 pb-2">
+              <Sparkles size={18} className="text-brand-navy shrink-0 mt-1" />
               <textarea
                 ref={textareaRef}
                 value={newQuery}
@@ -161,14 +258,20 @@ function SearchResultsContent() {
                 }}
                 onKeyDown={handleKeyDown}
                 rows={1}
-                className="flex-1 text-sm text-brand-navy placeholder-gray-400 bg-transparent focus:outline-none resize-none leading-relaxed"
+                className="w-full text-sm text-brand-navy placeholder-gray-400 bg-transparent focus:outline-none resize-none leading-relaxed"
                 placeholder="Describe your ideal neighborhood..."
               />
+            </div>
+            <div className="flex items-center justify-between px-4 pb-3">
+              <span className="text-[11px] text-gray-400">
+                Press Enter to search
+              </span>
               <button
                 onClick={handleSearch}
                 disabled={!newQuery.trim() || newQuery.trim() === query}
-                className="bg-brand-orange hover:bg-[#f0a44e] disabled:opacity-30 disabled:cursor-not-allowed text-brand-navy font-bold text-sm px-4 py-1.5 rounded-lg transition-colors shrink-0"
+                className="flex items-center gap-1.5 bg-brand-orange hover:bg-[#f0a44e] disabled:opacity-40 disabled:cursor-not-allowed text-brand-navy font-bold text-sm px-5 py-2 transition-colors rounded-lg"
               >
+                Find
                 <ArrowRight size={14} />
               </button>
             </div>
@@ -176,30 +279,59 @@ function SearchResultsContent() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Loading state */}
         {loading && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="relative mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-brand-orange/10 flex items-center justify-center">
-                <Sparkles size={28} className="text-brand-orange" />
+          <div>
+            <div className="flex items-center gap-3 py-8 mb-6">
+              <Loader2 size={18} className="text-brand-teal animate-spin shrink-0" />
+              <div>
+                <p className="text-brand-navy font-semibold text-sm">Analyzing your preferences</p>
+                <p className="text-brand-teal text-xs">Matching against livability data, amenities, and reviews</p>
               </div>
-              <Loader2 size={18} className="absolute -bottom-1 -right-1 text-brand-teal animate-spin" />
             </div>
-            <p className="text-brand-navy font-semibold mb-1">Analyzing your preferences</p>
-            <p className="text-brand-teal text-sm">Matching against livability data, nearby amenities, and reviews...</p>
+
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-5">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl border border-gray-100 overflow-hidden animate-pulse break-inside-avoid mb-5"
+                >
+                  <div className={`${i === 0 ? "h-56" : "h-40"} bg-gray-100/60`} />
+                  <div className="p-4 space-y-3">
+                    <div className="h-4 bg-gray-100/80 rounded w-3/4" />
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <div key={j} className="w-3.5 h-3.5 bg-gray-100/80 rounded-sm" />
+                      ))}
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-100/60 rounded w-full" />
+                      <div className="h-3 bg-gray-100/60 rounded w-2/3" />
+                    </div>
+                    <div className="flex gap-1.5 pt-1">
+                      {Array.from({ length: 3 }).map((_, j) => (
+                        <div key={j} className="h-5 bg-gray-100/60 rounded w-16" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Error state */}
         {!loading && error && (
           <div className="text-center py-16">
-            <p className="text-red-600 font-medium mb-2">{error}</p>
+            <Search size={40} className="text-brand-teal/30 mx-auto mb-3" />
+            <p className="text-brand-navy font-medium mb-2">{error}</p>
             <button
               onClick={() => router.push(`/search?q=${encodeURIComponent(query)}&t=${Date.now()}`)}
-              className="text-sm text-brand-orange hover:underline"
+              className="inline-flex items-center gap-2 text-sm font-medium text-brand-orange hover:underline"
             >
               Try again
+              <ArrowRight size={14} />
             </button>
           </div>
         )}
@@ -207,7 +339,7 @@ function SearchResultsContent() {
         {/* No query */}
         {!query && !loading && (
           <div className="text-center py-16">
-            <Sparkles size={40} className="text-brand-teal/30 mx-auto mb-3" />
+            <Search size={40} className="text-brand-teal/30 mx-auto mb-3" />
             <p className="text-brand-navy font-medium mb-1">Describe what you&apos;re looking for</p>
             <p className="text-brand-teal text-sm">Use the search bar above to find your ideal neighborhood.</p>
           </div>
@@ -216,94 +348,25 @@ function SearchResultsContent() {
         {/* Results */}
         {!loading && !error && results && (
           <>
-            {/* Summary */}
-            <div className="mb-8">
+            {/* AI Summary */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-8">
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles size={16} className="text-brand-orange" />
-                <h2 className="text-lg font-bold text-brand-navy">AI Recommendations</h2>
+                <div>
+                  <h2 className="text-sm font-bold text-brand-navy">AI Recommendations</h2>
+                  <p className="text-[11px] text-brand-teal">{results.recommendations.length} matches found</p>
+                </div>
               </div>
-              <p className="text-sm text-brand-teal leading-relaxed">{results.summary}</p>
+              <p className="text-sm text-gray-500 leading-relaxed mt-3">{results.summary}</p>
             </div>
 
-            {/* Recommendation cards */}
-            <div className="space-y-5">
-              {results.recommendations.map((rec, i) => (
-                <Link
-                  key={rec.neighborhood_id}
-                  href={`/neighborhood/${rec.neighborhood_id}`}
-                  className="group block bg-white rounded-xl border border-gray-100 hover:border-brand-teal/25 overflow-hidden transition-all"
-                >
-                  <div className="flex flex-col sm:flex-row">
-                    {/* Image */}
-                    <div className="relative w-full sm:w-56 h-44 sm:h-auto shrink-0 bg-brand-navy/5">
-                      {rec.neighborhood?.image_url ? (
-                        <Image
-                          src={rec.neighborhood.image_url}
-                          alt={rec.neighborhood_name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full min-h-[140px]">
-                          <MapPin size={24} className="text-brand-teal/25" />
-                        </div>
-                      )}
-                      {/* Rank badge */}
-                      <div className="absolute top-3 left-3 w-8 h-8 rounded-lg bg-brand-navy/80 backdrop-blur-sm flex items-center justify-center text-white text-sm font-bold">
-                        {i + 1}
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 p-5">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div>
-                          <h3 className="text-lg font-bold text-brand-navy group-hover:text-brand-teal-dark transition-colors">
-                            {rec.neighborhood_name}
-                          </h3>
-                          {rec.neighborhood && (rec.neighborhood.city || rec.neighborhood.state) && (
-                            <div className="flex items-center gap-1 text-brand-teal text-xs mt-0.5">
-                              <MapPin size={10} />
-                              {[rec.neighborhood.city, rec.neighborhood.state].filter(Boolean).join(", ")}
-                            </div>
-                          )}
-                        </div>
-                        <ScoreBadge score={rec.score} />
-                      </div>
-
-                      {/* Rating */}
-                      {rec.neighborhood?.rating != null && (
-                        <div className="flex items-center gap-1.5 mb-3">
-                          <StarBar rating={rec.neighborhood.rating} />
-                          <span className="text-xs font-bold text-brand-navy">{rec.neighborhood.rating.toFixed(1)}</span>
-                          {rec.neighborhood.review_count != null && (
-                            <span className="text-[11px] text-brand-teal">({rec.neighborhood.review_count} reviews)</span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* AI reasoning */}
-                      <p className="text-sm text-gray-600 leading-relaxed mb-3">{rec.reasoning}</p>
-
-                      {/* Highlights */}
-                      <div className="flex flex-wrap gap-1.5">
-                        {rec.highlights.map((h) => (
-                          <span
-                            key={h}
-                            className="inline-flex items-center gap-1 text-[11px] font-medium text-brand-teal bg-brand-teal/6 px-2 py-0.5 rounded"
-                          >
-                            <Check size={9} className="text-brand-mint" />
-                            {h}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {results.recommendations.length === 0 && (
+            {/* Recommendation cards in masonry grid */}
+            {results.recommendations.length > 0 ? (
+              <div className="columns-1 sm:columns-2 lg:columns-3 gap-5">
+                {results.recommendations.map((rec, i) => (
+                  <ResultCard key={rec.neighborhood_id} rec={rec} rank={i + 1} />
+                ))}
+              </div>
+            ) : (
               <div className="text-center py-16">
                 <MapPin size={40} className="text-brand-teal/30 mx-auto mb-3" />
                 <p className="text-brand-navy font-medium mb-1">No matches found</p>
@@ -320,7 +383,8 @@ function SearchResultsContent() {
 export default function SearchPage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen bg-[#F8FAF7] pt-16">
+      <main className="min-h-screen bg-[#F8FAF7]">
+        <div className="w-full h-52 bg-brand-navy animate-pulse" />
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 size={24} className="text-brand-teal animate-spin" />
         </div>

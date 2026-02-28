@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Cerebras from "@cerebras/cerebras_cloud_sdk";
+import type { ChatCompletion } from "@cerebras/cerebras_cloud_sdk/resources/chat/completions";
 import { supabase } from "@/lib/supabase-server";
 import { apiError } from "@/lib/api-utils";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
+const cerebras = new Cerebras({
+  apiKey: process.env.CEREBRAS_API_KEY ?? "",
+});
 
 interface NeighborhoodData {
   id: number;
@@ -43,8 +46,7 @@ interface AiRecommendation {
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  if (!process.env.CEREBRAS_API_KEY) {
     return apiError("AI service not configured", 503);
   }
 
@@ -153,10 +155,11 @@ IMPORTANT RULES:
 - Only recommend neighborhoods that exist in the provided data
 - Score each recommendation 0-100 based on how well it matches the query
 - Provide 3-5 recommendations, ranked by score
-- Be specific in your reasoning -- reference actual data points (scores, costs, nearby businesses)
+- NEVER reference raw data field names, scores, zip codes, or internal metrics in your reasoning or highlights. Write as if you are a knowledgeable local describing the neighborhood to a friend. For example, say "close to grocery stores" instead of "grocery_access score 1.34 in zip 92604". Say "affordable housing options" instead of "monthly housing cost $2,381".
 - If the user asks about something the data doesn't cover, acknowledge it and recommend based on what IS available
-- Keep reasoning concise (2-3 sentences max per neighborhood)
-- Highlights should be short phrases (3-5 per neighborhood)
+- Keep reasoning concise (2-3 sentences max per neighborhood). Focus on what makes this neighborhood a good fit for the user's specific request.
+- Highlights should be short, human-readable phrases (3-5 per neighborhood) that directly address the user's criteria
+- Rankings should be stable: prioritize neighborhoods that strongly match the most important criteria in the user's query. A neighborhood that partially matches many criteria should rank lower than one that strongly matches the key criteria.
 
 Respond ONLY with valid JSON in this exact format:
 {
@@ -182,18 +185,20 @@ ${JSON.stringify(livabilityContext, null, 0)}
 
 Based on this data, which neighborhoods best match what the user is looking for? Return your recommendations as JSON.`;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const result = await model.generateContent({
-      contents: [
-        { role: "user", parts: [{ text: systemPrompt + "\n\n" + userPrompt }] },
+    const completion = (await cerebras.chat.completions.create({
+      model: "gpt-oss-120b",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
       ],
-      generationConfig: {
-        temperature: 0.3,
-        responseMimeType: "application/json",
-      },
-    });
+      temperature: 0.1,
+      max_completion_tokens: 4096,
+      top_p: 1,
+      seed: 42,
+      response_format: { type: "json_object" },
+    })) as ChatCompletion.ChatCompletionResponse;
 
-    const responseText = result.response.text();
+    const responseText = completion.choices[0]?.message?.content ?? "";
 
     let parsed: { recommendations: AiRecommendation[]; summary: string };
     try {
