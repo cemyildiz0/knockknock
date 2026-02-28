@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
 import { mockReviews } from "@/data/mockReviews";
 import StarRating from "@/components/StarRating";
@@ -20,16 +19,16 @@ export default function NeighborhoodPage() {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("community_neighborhoods")
-        .select("id, geo_id, legacy_id, name, area_sqmi, center_lat, center_lng")
-        .eq("id", id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching neighborhood:", error.message);
-      } else {
-        setNeighborhood(data as CommunityNeighborhood);
+      try {
+        const res = await fetch(`/api/neighborhoods/${id}`);
+        if (!res.ok) {
+          console.error("Error fetching neighborhood:", res.statusText);
+        } else {
+          const data: CommunityNeighborhood = await res.json();
+          setNeighborhood(data);
+        }
+      } catch (err) {
+        console.error("Error fetching neighborhood:", err);
       }
 
       setLoading(false);
