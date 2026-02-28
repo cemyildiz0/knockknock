@@ -4,11 +4,17 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
-import { supabase } from "@/lib/supabase";
+import { aggregatePoisByZip } from "@/lib/poi-aggregation";
 import type { LivabilityRegion } from "@/types/livability";
+import type { CommunityNeighborhood } from "@/types/community-neighborhood";
+import type { SchoolDistrict } from "@/types/school-district";
+import type { PoiCounts } from "@/types/poi";
 import LivabilityLayer from "@/components/LivabilityLayer";
-import LivabilityLegend from "@/components/LivabilityLegend";
+import NeighborhoodLayer from "@/components/NeighborhoodLayer";
+import SchoolDistrictLayer from "@/components/SchoolDistrictLayer";
 import LivabilitySidebar from "@/components/LivabilitySidebar";
+import LayerControls from "@/components/LayerControls";
+import type { LayerVisibility } from "@/components/LayerControls";
 
 import "leaflet/dist/leaflet.css";
 
@@ -66,23 +72,53 @@ export default function Map() {
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+
   const [regions, setRegions] = useState<LivabilityRegion[]>([]);
+  const [neighborhoods, setNeighborhoods] = useState<CommunityNeighborhood[]>([]);
+  const [districts, setDistricts] = useState<SchoolDistrict[]>([]);
+  const [poiCountsByZip, setPoiCountsByZip] = useState<Record<string, PoiCounts>>({});
+
   const [selectedRegion, setSelectedRegion] = useState<LivabilityRegion | null>(null);
+  const [layerVisibility, setLayerVisibility] = useState<LayerVisibility>({
+    livability: true,
+    neighborhoods: true,
+    districts: true,
+    addresses: true,
+  });
 
   useEffect(() => {
-    async function fetchRegions() {
-      const { data, error } = await supabase
-        .from("livability_regions")
-        .select("*");
+    async function fetchLayers() {
+      try {
+        const [layersRes, poisRes] = await Promise.all([
+          fetch("/api/map/layers"),
+          fetch("/api/map/pois"),
+        ]);
 
-      if (error) {
-        console.error("Error fetching livability regions:", error.message);
-        return;
+        if (layersRes.ok) {
+          const layers: {
+            regions: LivabilityRegion[];
+            neighborhoods: CommunityNeighborhood[];
+            districts: SchoolDistrict[];
+          } = await layersRes.json();
+          setRegions(layers.regions ?? []);
+          setNeighborhoods(layers.neighborhoods ?? []);
+          setDistricts(layers.districts ?? []);
+        } else {
+          console.error("Error fetching map layers:", layersRes.statusText);
+        }
+
+        if (poisRes.ok) {
+          const pois: { zip_code: string | null; category: string }[] = await poisRes.json();
+          setPoiCountsByZip(aggregatePoisByZip(pois));
+        } else {
+          console.error("Error fetching POIs:", poisRes.statusText);
+        }
+      } catch (err) {
+        console.error("Error fetching map data:", err);
       }
-
-      setRegions(data ?? []);
     }
-    fetchRegions();
+
+    fetchLayers();
   }, []);
 
   const fetchPoints = useCallback(async (bounds: L.LatLngBounds) => {
@@ -98,28 +134,37 @@ export default function Map() {
     const west = bounds.getWest();
     const east = bounds.getEast();
 
-    const { data, error, count } = await supabase
-      .from("address_points")
-      .select("*", { count: "exact" })
-      .gte("latitude", south)
-      .lte("latitude", north)
-      .gte("longitude", west)
-      .lte("longitude", east)
-      .limit(MAX_POINTS)
-      .abortSignal(abortControllerRef.current.signal);
+    try {
+      const res = await fetch(
+        `/api/map/address-points?south=${south}&north=${north}&west=${west}&east=${east}`,
+        { signal: abortControllerRef.current.signal }
+      );
 
-    if (error) {
-      if (error.message !== "AbortError: signal is aborted without reason") {
-        console.error("Error fetching points:", error.message);
+      if (!res.ok) {
+        console.error("Error fetching points:", res.statusText);
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-      return;
+
+      const { data, count }: { data: AddressPoint[]; count: number | null } = await res.json();
+      setPoints(data ?? []);
+      setTotalCount(count);
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setLoading(false);
+        return;
+      }
+      console.error("Error fetching points:", err);
     }
 
-    setPoints(data ?? []);
-    setTotalCount(count);
     setLoading(false);
   }, []);
+
+  function handleLayerToggle(key: keyof LayerVisibility) {
+    setLayerVisibility((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  const selectedPoiCounts = selectedRegion ? poiCountsByZip[selectedRegion.geoid] : undefined;
 
   return (
     <div className="relative h-full w-full">
@@ -129,34 +174,50 @@ export default function Map() {
         className="h-full w-full"
       >
         <TileLayer
-          attribution='&copy; CNES, Distribution Airbus DS, &copy; Airbus DS, &copy; PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.jpg"
-          minZoom={0}
-          maxZoom={20}
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapEvents onBoundsChange={fetchPoints} />
-        <LivabilityLayer regions={regions} onRegionClick={setSelectedRegion} />
-        <MarkerClusterGroup chunkedLoading>
-          {points.map((point) => (
-            <Marker
-              key={point.id}
-              position={[point.latitude, point.longitude]}
-              icon={markerIcon}
-            >
-              <Popup>
-                <div className="text-sm">
-                  <p className="font-bold">{point.address} {point.streetname}</p>
-                  {point.unit && <p>Unit: {point.unit}</p>}
-                  <p>PA: {point.pa}</p>
-                  <p>Type: {point.res}</p>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MarkerClusterGroup>
+
+        {layerVisibility.livability && (
+          <LivabilityLayer regions={regions} onRegionClick={setSelectedRegion} />
+        )}
+        {layerVisibility.districts && (
+          <SchoolDistrictLayer districts={districts} />
+        )}
+        {layerVisibility.neighborhoods && (
+          <NeighborhoodLayer neighborhoods={neighborhoods} />
+        )}
+
+        {layerVisibility.addresses && (
+          <MarkerClusterGroup chunkedLoading>
+            {points.map((point) => (
+              <Marker
+                key={point.id}
+                position={[point.latitude, point.longitude]}
+                icon={markerIcon}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <p className="font-bold">{point.address} {point.streetname}</p>
+                    {point.unit && <p>Unit: {point.unit}</p>}
+                    <p>PA: {point.pa}</p>
+                    <p>Type: {point.res}</p>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
+        )}
       </MapContainer>
-      <LivabilitySidebar region={selectedRegion} onClose={() => setSelectedRegion(null)} />
-      <LivabilityLegend />
+
+      <LivabilitySidebar
+        region={selectedRegion}
+        poiCounts={selectedPoiCounts}
+        onClose={() => setSelectedRegion(null)}
+      />
+      <LayerControls layers={layerVisibility} onToggle={handleLayerToggle} />
+
       <div className="absolute top-4 right-4 z-[1000] bg-neutral-900 text-neutral-100 px-3 py-2 rounded text-sm">
         {loading ? (
           <span>Loading...</span>

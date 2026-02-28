@@ -1,24 +1,62 @@
-import { mockNeighborhoods } from "@/data/mockNeighborhoods";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import type { CommunityNeighborhood } from "@/types/community-neighborhood";
+import { mockReviews } from "@/data/mockReviews";
 import StarRating from "@/components/StarRating";
 import LikeButton from "@/components/LikeButton";
 
 
-interface Props {
-  params: { id: string };
-}
+export default function NeighborhoodPage() {
+  const params = useParams();
+  const [neighborhood, setNeighborhood] = useState<CommunityNeighborhood | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export default function NeighborhoodPage({ params }: Props) {
-  const neighborhood = mockNeighborhoods.find(
-    (n) => n.id === params.id
-  );
+  useEffect(() => {
+    async function fetchNeighborhood() {
+      const id = Number(params.id);
+      if (isNaN(id)) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/neighborhoods/${id}`);
+        if (!res.ok) {
+          console.error("Error fetching neighborhood:", res.statusText);
+        } else {
+          const data: CommunityNeighborhood = await res.json();
+          setNeighborhood(data);
+        }
+      } catch (err) {
+        console.error("Error fetching neighborhood:", err);
+      }
+
+      setLoading(false);
+    }
+
+    fetchNeighborhood();
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
+        <p className="text-neutral-400">Loading...</p>
+      </main>
+    );
+  }
 
   if (!neighborhood) {
-    return <div>Neighborhood not found</div>;
+    return (
+      <main className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
+        <p>Neighborhood not found</p>
+      </main>
+    );
   }
 
   const average =
-    neighborhood.reviews.reduce((acc, r) => acc + r.rating, 0) /
-    neighborhood.reviews.length;
+    mockReviews.reduce((acc, r) => acc + r.rating, 0) / mockReviews.length;
 
   return (
     <main className="min-h-screen bg-100 text-black p-6">
@@ -26,24 +64,24 @@ export default function NeighborhoodPage({ params }: Props) {
         {neighborhood.name}
       </h1>
 
-      <p className="text-neutral-800 mt-1">
-        {neighborhood.city}
-      </p>
+      {neighborhood.area_sqmi && (
+        <p className="text-neutral-800 mt-1">
+          {neighborhood.area_sqmi.toFixed(2)} sq mi
+        </p>
+      )}
 
       <div className="flex items-center gap-3 mt-3">
         <StarRating rating={average} />
-        <span className="text-neutral-600">
+        <span className="text-neutral-400">
           {neighborhood.reviews.length} reviews
         </span>
       </div>
 
-        <h1 className="heading-small">Livability Scores</h1>
-      <p className="mt-6 bg-white text-neutral-600">
+      <p className="mt-6 text-neutral-300">
         {neighborhood.description}
       </p>
 
-      <div className="w-1/2 space-y-6">
-        <h1 className="heading-small">Community Reviews</h1>
+      <div className="mt-10 space-y-6">
         {neighborhood.reviews.map((review) => (
           <div
             key={review.id}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { LivabilityRegion } from "@/types/livability";
+import type { PoiCounts } from "@/types/poi";
 import { getScoreColor } from "@/lib/livability-colors";
 import {
   CATEGORY_LABELS,
@@ -13,6 +14,7 @@ import {
 
 interface LivabilitySidebarProps {
   region: LivabilityRegion | null;
+  poiCounts?: PoiCounts;
   onClose: () => void;
 }
 
@@ -113,7 +115,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
   );
 }
 
-export default function LivabilitySidebar({ region, onClose }: LivabilitySidebarProps) {
+export default function LivabilitySidebar({ region, poiCounts, onClose }: LivabilitySidebarProps) {
   const isOpen = region !== null;
 
   return (
@@ -188,6 +190,38 @@ export default function LivabilitySidebar({ region, onClose }: LivabilitySidebar
               </div>
             </div>
           </CollapsibleSection>
+
+          {/* Nearby Businesses */}
+          {poiCounts && (
+            <CollapsibleSection title="Nearby Businesses" defaultOpen>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs border-b border-[#1e1e1e] pb-1.5 mb-1.5">
+                  <span className="text-neutral-300 font-medium">Total</span>
+                  <span className="text-neutral-100 font-bold">{poiCounts.total}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-neutral-400">Restaurants & Bars</span>
+                  <span className="text-neutral-200">{poiCounts.eating_drinking}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-neutral-400">Healthcare</span>
+                  <span className="text-neutral-200">{poiCounts.health_care}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-neutral-400">Shopping</span>
+                  <span className="text-neutral-200">{poiCounts.shopping}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-neutral-400">Attractions & Recreation</span>
+                  <span className="text-neutral-200">{poiCounts.attractions_recreation}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-neutral-400">Education</span>
+                  <span className="text-neutral-200">{poiCounts.education}</span>
+                </div>
+              </div>
+            </CollapsibleSection>
+          )}
 
           {/* Detailed Metrics */}
           <CollapsibleSection title="Detailed Metrics">
