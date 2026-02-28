@@ -8,7 +8,7 @@ CREATE TABLE address_points (
   suffix TEXT,
   unit TEXT,
   streetname TEXT NOT NULL,
-  pa INTEGER NOT NULL,
+  pa INTEGER,
   code TEXT NOT NULL,
   status INTEGER NOT NULL,
   res TEXT NOT NULL,
