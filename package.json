@@ -16,7 +16,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-leaflet": "^4.2.1",
-    "react-leaflet-cluster": "^2.1.0"
+    "react-leaflet-cluster": "^2.1.0",
+    "react-stars": "^2.2.5"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.16",
