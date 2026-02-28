@@ -8,7 +8,7 @@ import Link from "next/link";
 const Map = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-screen w-screen items-center justify-center bg-neutral-950 text-neutral-100">
+    <div className="flex h-full w-full items-center justify-center bg-neutral-950 text-neutral-100">
       Loading map...
     </div>
   ),
@@ -16,7 +16,7 @@ const Map = dynamic(() => import("@/components/Map"), {
 
 export default function mapOverview(): JSX.Element {
   return (
-    <main className="h-screen w-screen">
+    <main className="h-full w-full">
       <Map />
 
       <Link href="/about" className="text-blue-400 underline">
