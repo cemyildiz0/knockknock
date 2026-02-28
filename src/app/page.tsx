@@ -16,8 +16,8 @@ export default function Home() {
         if (!res.ok) {
           console.error("Error fetching community neighborhoods:", res.statusText);
         } else {
-          const data: CommunityNeighborhood[] = await res.json();
-          setNeighborhoods(data ?? []);
+          const json = await res.json();
+          setNeighborhoods(json.data ?? []);
         }
       } catch (err) {
         console.error("Error fetching community neighborhoods:", err);
