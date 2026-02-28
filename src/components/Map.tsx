@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
-import { supabase } from "@/lib/supabase";
 import { aggregatePoisByZip } from "@/lib/poi-aggregation";
 import type { LivabilityRegion } from "@/types/livability";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
@@ -89,53 +88,34 @@ export default function Map() {
 
   useEffect(() => {
     async function fetchLayers() {
-      const [regionsRes, neighborhoodsRes, districtsRes] = await Promise.all([
-        supabase.from("livability_regions").select("*"),
-        supabase.from("community_neighborhoods").select("*"),
-        supabase.from("school_districts").select("*"),
-      ]);
+      try {
+        const [layersRes, poisRes] = await Promise.all([
+          fetch("/api/map/layers"),
+          fetch("/api/map/pois"),
+        ]);
 
-      if (regionsRes.error) {
-        console.error("Error fetching livability regions:", regionsRes.error.message);
-      } else {
-        setRegions(regionsRes.data ?? []);
-      }
-
-      if (neighborhoodsRes.error) {
-        console.error("Error fetching neighborhoods:", neighborhoodsRes.error.message);
-      } else {
-        setNeighborhoods(neighborhoodsRes.data ?? []);
-      }
-
-      if (districtsRes.error) {
-        console.error("Error fetching districts:", districtsRes.error.message);
-      } else {
-        setDistricts(districtsRes.data ?? []);
-      }
-
-      const PAGE_SIZE = 1000;
-      let allPois: { zip_code: string | null; category: string }[] = [];
-      let from = 0;
-      let hasMore = true;
-
-      while (hasMore) {
-        const { data, error } = await supabase
-          .from("pois")
-          .select("zip_code, category")
-          .range(from, from + PAGE_SIZE - 1);
-
-        if (error) {
-          console.error("Error fetching POIs:", error.message);
-          break;
+        if (layersRes.ok) {
+          const layers: {
+            regions: LivabilityRegion[];
+            neighborhoods: CommunityNeighborhood[];
+            districts: SchoolDistrict[];
+          } = await layersRes.json();
+          setRegions(layers.regions ?? []);
+          setNeighborhoods(layers.neighborhoods ?? []);
+          setDistricts(layers.districts ?? []);
+        } else {
+          console.error("Error fetching map layers:", layersRes.statusText);
         }
 
-        const rows = data ?? [];
-        allPois = allPois.concat(rows);
-        hasMore = rows.length === PAGE_SIZE;
-        from += PAGE_SIZE;
+        if (poisRes.ok) {
+          const pois: { zip_code: string | null; category: string }[] = await poisRes.json();
+          setPoiCountsByZip(aggregatePoisByZip(pois));
+        } else {
+          console.error("Error fetching POIs:", poisRes.statusText);
+        }
+      } catch (err) {
+        console.error("Error fetching map data:", err);
       }
-
-      setPoiCountsByZip(aggregatePoisByZip(allPois));
     }
 
     fetchLayers();
@@ -154,26 +134,29 @@ export default function Map() {
     const west = bounds.getWest();
     const east = bounds.getEast();
 
-    const { data, error, count } = await supabase
-      .from("address_points")
-      .select("*", { count: "exact" })
-      .gte("latitude", south)
-      .lte("latitude", north)
-      .gte("longitude", west)
-      .lte("longitude", east)
-      .limit(MAX_POINTS)
-      .abortSignal(abortControllerRef.current.signal);
+    try {
+      const res = await fetch(
+        `/api/map/address-points?south=${south}&north=${north}&west=${west}&east=${east}`,
+        { signal: abortControllerRef.current.signal }
+      );
 
-    if (error) {
-      if (error.message !== "AbortError: signal is aborted without reason") {
-        console.error("Error fetching points:", error.message);
+      if (!res.ok) {
+        console.error("Error fetching points:", res.statusText);
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-      return;
+
+      const { data, count }: { data: AddressPoint[]; count: number | null } = await res.json();
+      setPoints(data ?? []);
+      setTotalCount(count);
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setLoading(false);
+        return;
+      }
+      console.error("Error fetching points:", err);
     }
 
-    setPoints(data ?? []);
-    setTotalCount(count);
     setLoading(false);
   }, []);
 

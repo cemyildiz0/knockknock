@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
 import NeighborhoodCard from "@/components/NeighborhoodCard";
 
@@ -11,14 +10,16 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchNeighborhoods() {
-      const { data, error } = await supabase
-        .from("community_neighborhoods")
-        .select("id, geo_id, legacy_id, name, area_sqmi, center_lat, center_lng");
-
-      if (error) {
-        console.error("Error fetching community neighborhoods:", error.message);
-      } else {
-        setNeighborhoods((data as CommunityNeighborhood[]) ?? []);
+      try {
+        const res = await fetch("/api/neighborhoods");
+        if (!res.ok) {
+          console.error("Error fetching community neighborhoods:", res.statusText);
+        } else {
+          const data: CommunityNeighborhood[] = await res.json();
+          setNeighborhoods(data ?? []);
+        }
+      } catch (err) {
+        console.error("Error fetching community neighborhoods:", err);
       }
 
       setLoading(false);
