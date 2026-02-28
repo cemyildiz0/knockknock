@@ -3,22 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --background: #f5f6f5;
+  --background: #0a0a0a;
   --foreground: #ededed;
-  font-family: Inter, sans-serif;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Inter, sans-serif;
   margin: 0;
   padding: 0;
-  /* overflow: hidden; */
-}
-
-.heading-small {
-  font-style: Inter;
-  font-weight: bolder;
-  font-size: 20px;
 }

@@ -1,11 +1,8 @@
-import React, { useState } from "react";
-
 export interface Review {
   id: string;
   user: string;
-  rating: number; 
+  rating: number;
   comment: string;
-  timestamp?: string; 
+  timestamp?: string;
   likes?: number;
 }
-
