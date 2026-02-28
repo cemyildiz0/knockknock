@@ -1,19 +1,20 @@
 "use client";
 
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 
 import React from 'react';
 import ReactStars from 'react-stars';
 import Link from "next/link";
 import { mockNeighborhoods } from "@/data/mockNeighborhoods";
 import NeighborhoodCard from "@/components/NeighborhoodCard";
-import Header from "@/components/Header";
+import HeroSection from "@/components/home/Hero";
+
 
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full bg-neutral-950 text-neutral-100">
-      <Header />
+    <div className="flex flex-col items-center w-full min-h-screen bg-neutral-950 text-neutral-100">
+      <HeroSection/>
       <h2 className="mb-4 text-lg font-semibold">
         Reconmended Neighborhoods
       </h2>
