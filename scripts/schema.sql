@@ -87,3 +87,96 @@ CREATE POLICY "Allow public read access" ON parks
   FOR SELECT USING (true);
 
 CREATE INDEX idx_parks_pa ON parks (pa);
+
+CREATE TABLE schools (
+  id SERIAL PRIMARY KEY,
+  geo_id TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  address TEXT,
+  city TEXT,
+  state TEXT,
+  zip_code TEXT,
+  latitude DOUBLE PRECISION NOT NULL,
+  longitude DOUBLE PRECISION NOT NULL,
+  phone TEXT,
+  school_url TEXT,
+  institution_type TEXT,
+  school_type TEXT,
+  instructional_level TEXT,
+  grade_span_low TEXT,
+  grade_span_high TEXT,
+  rating TEXT,
+  district_name TEXT
+);
+
+ALTER TABLE schools ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access" ON schools
+  FOR SELECT USING (true);
+
+CREATE INDEX idx_schools_lat ON schools (latitude);
+CREATE INDEX idx_schools_lng ON schools (longitude);
+CREATE INDEX idx_schools_geo_id ON schools (geo_id);
+
+CREATE TABLE school_districts (
+  id SERIAL PRIMARY KEY,
+  geo_id TEXT NOT NULL UNIQUE,
+  legacy_id TEXT,
+  name TEXT NOT NULL,
+  center_lat DOUBLE PRECISION,
+  center_lng DOUBLE PRECISION,
+  boundary JSONB NOT NULL
+);
+
+ALTER TABLE school_districts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access" ON school_districts
+  FOR SELECT USING (true);
+
+CREATE INDEX idx_school_districts_geo_id ON school_districts (geo_id);
+
+CREATE TABLE community_neighborhoods (
+  id SERIAL PRIMARY KEY,
+  geo_id TEXT NOT NULL UNIQUE,
+  legacy_id TEXT,
+  name TEXT NOT NULL,
+  area_sqmi DOUBLE PRECISION,
+  center_lat DOUBLE PRECISION,
+  center_lng DOUBLE PRECISION,
+  boundary JSONB NOT NULL
+);
+
+ALTER TABLE community_neighborhoods ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access" ON community_neighborhoods
+  FOR SELECT USING (true);
+
+CREATE INDEX idx_community_neighborhoods_geo_id ON community_neighborhoods (geo_id);
+CREATE INDEX idx_community_neighborhoods_name ON community_neighborhoods (name);
+
+CREATE TABLE pois (
+  id SERIAL PRIMARY KEY,
+  pid INTEGER NOT NULL UNIQUE,
+  attom_id TEXT,
+  name TEXT NOT NULL,
+  address TEXT,
+  city TEXT,
+  state TEXT,
+  zip_code TEXT,
+  category TEXT NOT NULL,
+  line_of_business TEXT,
+  industry TEXT,
+  condensed_heading TEXT,
+  phone TEXT,
+  website TEXT,
+  sic_code TEXT
+);
+
+ALTER TABLE pois ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access" ON pois
+  FOR SELECT USING (true);
+
+CREATE INDEX idx_pois_category ON pois (category);
+CREATE INDEX idx_pois_zip_code ON pois (zip_code);
+CREATE INDEX idx_pois_pid ON pois (pid);
