@@ -7,12 +7,13 @@ import ReactStars from 'react-stars';
 import Link from "next/link";
 import { mockNeighborhoods } from "@/data/mockNeighborhoods";
 import NeighborhoodCard from "@/components/NeighborhoodCard";
-
+import Header from "@/components/Header";
 
 
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center h-full w-full bg-neutral-950 text-neutral-100">
+      <Header />
       <h2 className="mb-4 text-lg font-semibold">
         Reconmended Neighborhoods
       </h2>
