@@ -34,13 +34,13 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white text-black px-6 py-4 flex items-center justify-between">
+    <nav className="bg-white text-black px-6 py-4 flex items-center justify-between font-bold">
       <div className="text-2xl font-bold">
         <Link href="/">knock knock.</Link>
       </div>
 
-      <div className="flex items-center gap-6 text-neutral-200">
-        <Link href="/" className="hover:text-white transition">
+      <div className="flex items-center gap-6 text-black">
+        <Link href="/" className="hover:text-orange-300 transition">
           Home
         </Link>
         <Link href="/mapOverview" className="hover:text-orange-300 transition">
@@ -52,7 +52,7 @@ export default function Navbar() {
 
         {user ? (
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-neutral-300">
+            <div className="flex items-center gap-2 text-sm text-black">
               <UserCircle size={18} className="text-neutral-500" />
               <span>{user.user_metadata?.display_name || user.email}</span>
             </div>
@@ -67,7 +67,7 @@ export default function Navbar() {
         ) : (
           <Link
             href="/auth"
-            className="flex items-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:border-neutral-500 hover:text-white transition"
+            className="flex items-center gap-1.5 rounded-lg border border-neutral-700 px-3 py-1.5 text-sm text-black hover:border-neutral-500 hover:text-white transition"
           >
             <LogIn size={16} />
             <span>Log In</span>

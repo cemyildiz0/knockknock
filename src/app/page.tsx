@@ -30,9 +30,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen bg-[#ededed] text-neutral-100">
+    <div className="flex flex-col items-center w-full min-h-screen bg-[#ededed] text-black">
       <HeroSection />
-      <h2 className="mb-4 text-lg font-semibold">
+      <h2 className="mb-4 text-lg font-bold">
         Recommended Neighborhoods
       </h2>
       {loading ? (
