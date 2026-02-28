@@ -15,6 +15,7 @@ import SchoolDistrictLayer from "@/components/SchoolDistrictLayer";
 import LivabilitySidebar from "@/components/LivabilitySidebar";
 import LayerControls from "@/components/LayerControls";
 import type { LayerVisibility } from "@/components/LayerControls";
+import type { AddressPoint } from "@/types/address-point";
 
 import "leaflet/dist/leaflet.css";
 
@@ -27,25 +28,6 @@ const markerIcon = new L.Icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
 });
-
-interface AddressPoint {
-  id: number;
-  address: string;
-  prefix: string | null;
-  pretype: string | null;
-  name: string;
-  sttype: string | null;
-  suffix: string | null;
-  unit: string | null;
-  streetname: string;
-  pa: number;
-  code: string;
-  status: number;
-  res: string;
-  mun: string;
-  longitude: number;
-  latitude: number;
-}
 
 const IRVINE_CENTER: [number, number] = [33.6846, -117.8265];
 const MAX_POINTS = 5000;

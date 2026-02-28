@@ -4,13 +4,28 @@ import { apiError, parsePagination, paginationMeta } from "@/lib/api-utils";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  const zipCode = searchParams.get("zip_code");
+  const category = searchParams.get("category");
+  const q = searchParams.get("q")?.trim();
   const { page, limit, offset } = parsePagination(searchParams);
 
-  const { data, error, count } = await supabase
-    .from("community_neighborhoods")
-    .select("id, geo_id, legacy_id, name, area_sqmi, center_lat, center_lng", {
-      count: "exact",
-    })
+  let query = supabase
+    .from("pois")
+    .select("*", { count: "exact" });
+
+  if (zipCode) {
+    query = query.eq("zip_code", zipCode);
+  }
+
+  if (category) {
+    query = query.eq("category", category);
+  }
+
+  if (q && q.length >= 2) {
+    query = query.ilike("name", `%${q}%`);
+  }
+
+  const { data, error, count } = await query
     .order("name")
     .range(offset, offset + limit - 1);
 
