@@ -10,7 +10,7 @@ interface Props {
 export default function NeighborhoodCard({ neighborhood }: Props) {
   return (
     <Link href={`/neighborhood/${neighborhood.id}`}>
-      <div className="bg-neutral-800 p-5 rounded-xl hover:bg-neutral-700 transition cursor-pointer">
+      <div className="bg-white p-5 rounded-xl hover:bg-neutral-700 transition cursor-pointer">
         <h2 className="text-xl font-semibold">
           {neighborhood.name}
         </h2>
