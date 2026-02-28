@@ -30,7 +30,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen bg-neutral-950 text-neutral-100">
+    <div className="flex flex-col items-center w-full min-h-screen bg-[#ededed] text-neutral-100">
       <HeroSection />
       <h2 className="mb-4 text-lg font-semibold">
         Recommended Neighborhoods
