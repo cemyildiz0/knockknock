@@ -83,19 +83,17 @@ export default function NeighborhoodPage() {
             className="bg-neutral-800 p-4 rounded-lg"
           >
             <div className="flex items-center gap-2">
-              <strong>{review.user}</strong>
+              <strong>{review.profiles?.display_name ?? "Anonymous"}</strong>
               <StarRating rating={review.rating} />
             </div>
             <p className="mt-2 text-neutral-300">
               {review.comment}
             </p>
             <div className="flex items-center gap-4 mt-2">
-              {review.timestamp && (
-                <span className="text-neutral-400 text-sm">
-                  {review.timestamp}
-                </span>
-              )}
-              <LikeButton initialCount={review.likes ?? 0} />
+              <span className="text-neutral-400 text-sm">
+                {new Date(review.created_at).toLocaleDateString()}
+              </span>
+              <LikeButton initialCount={review.like_count ?? 0} />
             </div>
           </div>
         ))}
