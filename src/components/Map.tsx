@@ -13,7 +13,6 @@ import type { PoiCounts } from "@/types/poi";
 import LivabilityLayer from "@/components/LivabilityLayer";
 import NeighborhoodLayer from "@/components/NeighborhoodLayer";
 import SchoolDistrictLayer from "@/components/SchoolDistrictLayer";
-import LivabilityLegend from "@/components/LivabilityLegend";
 import LivabilitySidebar from "@/components/LivabilitySidebar";
 import LayerControls from "@/components/LayerControls";
 import type { LayerVisibility } from "@/components/LayerControls";
@@ -234,7 +233,6 @@ export default function Map() {
         poiCounts={selectedPoiCounts}
         onClose={() => setSelectedRegion(null)}
       />
-      <LivabilityLegend />
       <LayerControls layers={layerVisibility} onToggle={handleLayerToggle} />
 
       <div className="absolute top-4 right-4 z-[1000] bg-neutral-900 text-neutral-100 px-3 py-2 rounded text-sm">
