@@ -1,6 +1,7 @@
 "use client";
 import ReactStars from "react-stars";
 
+
 interface Props {
   rating: number;
   editable?: boolean;
