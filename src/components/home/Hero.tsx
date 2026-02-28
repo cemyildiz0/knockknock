@@ -1,100 +1,98 @@
 "use client";
 
-import { useState } from "react";
-import { Search } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Sparkles, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+const EXAMPLE_QUERIES = [
+  "Quiet area near parks with good schools under $800K",
+  "Walkable neighborhood with restaurants and nightlife",
+  "Family-friendly with low crime and a community pool",
+  "Near UCI with affordable rent and grocery stores",
+];
 
 export default function HeroSection() {
+  const router = useRouter();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [query, setQuery] = useState("");
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % EXAMPLE_QUERIES.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
-  // will need to connect to the backend API that works with our dedicated AI.
   const handleSearch = () => {
     if (query.trim()) {
-      console.log("Searching:", query);
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleSearch();
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
+
+  const autoResize = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+    }
   };
 
   return (
-    <section className="relative w-full min-h-[520px] flex items-center justify-center overflow-hidden">
-      {/* Background image with dark overlay */}
+    <section className="relative w-full overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/assets/hero-neighborhood.jpeg')" }}
       />
-      {/* Dark scrim */}
-      <div className="absolute inset-0 bg-black/45" />
+      <div className="absolute inset-0 bg-brand-navy/80" />
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center text-center px-4 w-full max-w-4xl mx-auto gap-6">
-        {/* Headline */}
-        <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold leading-tight tracking-tight">
-          <span className="text-white">Knock on </span>
-          <span className="text-[#FFB563]">Your Next Community</span>
+      <div className="relative z-10 max-w-2xl mx-auto px-6 pt-32 pb-16 text-center">
+        <h1 className="text-3xl sm:text-4xl font-extrabold leading-snug tracking-tight text-white mb-3">
+          Describe your{" "}
+          <span className="text-brand-orange">dream neighborhood.</span>
         </h1>
-
-        {/* Subheading */}
-        <p className="text-white/80 text-base sm:text-lg max-w-xl leading-relaxed">
-          Discover top-rated communities with AI-powered insights and real
-          resident reviews.
+        <p className="text-white/50 text-sm mb-8 max-w-md mx-auto">
+          Tell us what you&apos;re looking for in plain English and we&apos;ll find the best matches in Irvine.
         </p>
 
-        {/* Search Bar */}
-        <div className="w-full max-w-3xl mt-2">
-          <div className="flex items-center bg-white rounded-2xl shadow-xl overflow-hidden px-4 py-2 gap-3">
-            {/* AI icon */}
-            <div className="shrink-0 text-teal-700">
-              <AIBrainIcon />
-            </div>
-
-            {/* Input */}
-            <input
-              type="text"
+        <div className="bg-white rounded-2xl overflow-hidden max-w-lg mx-auto ring-4 ring-white/10">
+          <div className="flex items-start gap-3 p-4 pb-2">
+            <Sparkles size={18} className="text-brand-black shrink-0 mt-1" />
+            <textarea
+              ref={textareaRef}
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                autoResize();
+              }}
               onKeyDown={handleKeyDown}
-              placeholder="Ask AI: Where's a quiet neighborhood with great schools and parks?"
-              className="flex-1 text-xs sm:text-sm md:text-base text-gray-500 placeholder-gray-400 bg-transparent focus:outline-none py-2"
+              placeholder={EXAMPLE_QUERIES[placeholderIndex]}
+              rows={2}
+              className="w-full text-sm text-brand-navy placeholder-gray-400 bg-transparent focus:outline-none resize-none leading-relaxed"
             />
-
-            {/* Search button */}
+          </div>
+          <div className="flex items-center justify-between px-4 pb-3">
+            <span className="text-[11px] text-gray-400">
+              Press Enter to search
+            </span>
             <button
               onClick={handleSearch}
-              className="shrink-0 flex items-center gap-2 bg-[#FFB563] hover:bg-amber-500 active:bg-amber-600 text-gray-900 font-semibold text-sm sm:text-base px-5 py-3 rounded-xl transition-colors duration-150 shadow-sm"
+              disabled={!query.trim()}
+              className="flex items-center gap-1.5 bg-brand-orange hover:bg-[#f0a44e] disabled:opacity-40 disabled:cursor-not-allowed text-brand-navy font-bold text-sm px-5 py-2 transition-colors rounded-lg"
             >
-              <Search size={16} strokeWidth={2.5} />
-              Search
+              Find
+              <ArrowRight size={14} />
             </button>
           </div>
         </div>
       </div>
     </section>
-  );
-}
-
-// Minimal brain/AI icon matching the screenshot's half-circle brain glyph
-function AIBrainIcon() {
-  return (
-    <svg
-      width="26"
-      height="26"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {/* Left brain lobe */}
-      <path d="M9.5 2a4.5 4.5 0 0 0-4 6.8A4 4 0 0 0 4 12a4 4 0 0 0 2 3.46V17a3 3 0 0 0 6 0v-1" />
-      {/* Right brain lobe */}
-      <path d="M14.5 2a4.5 4.5 0 0 1 4 6.8A4 4 0 0 1 20 12a4 4 0 0 1-2 3.46V17a3 3 0 0 1-6 0v-1" />
-      {/* Center divide */}
-      <line x1="12" y1="2" x2="12" y2="16" />
-    </svg>
   );
 }

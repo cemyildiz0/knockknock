@@ -19,7 +19,7 @@ export default function StarRating({
       size={20}
       value={rating}
       edit={editable}
-      color2="#ffd700"
+      color2="#FFB563"
       onChange={onChange}
     />
   );

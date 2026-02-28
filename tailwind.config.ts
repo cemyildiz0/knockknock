@@ -14,6 +14,13 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        brand: {
+          navy: "#172A3A",
+          "teal-dark": "#004346",
+          teal: "#508991",
+          orange: "#FFB563",
+          mint: "#C2F9BB",
+        },
       },
     },
   },

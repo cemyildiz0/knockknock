@@ -52,8 +52,8 @@ function LayerIndicator({ color, style }: { color: string; style: string }) {
 
 export default function LayerControls({ layers, onToggle }: LayerControlsProps) {
   return (
-    <div className="absolute top-16 right-4 z-[1000] bg-[#171717] border border-[#262626] rounded overflow-hidden">
-      <p className="px-3 py-1.5 text-[10px] font-medium text-neutral-500 uppercase tracking-wider border-b border-[#262626]">
+    <div className="absolute top-16 right-4 z-[1000] bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <p className="px-3 py-1.5 text-[10px] font-medium text-brand-teal uppercase tracking-wider border-b border-gray-100">
         Layers
       </p>
       <div className="py-1">
@@ -61,15 +61,15 @@ export default function LayerControls({ layers, onToggle }: LayerControlsProps) 
           <button
             key={key}
             onClick={() => onToggle(key)}
-            className="flex w-full items-center gap-2.5 px-3 py-1.5 text-xs hover:bg-[#1e1e1e] transition-colors"
+            className="flex w-full items-center gap-2.5 px-3 py-1.5 text-xs hover:bg-gray-50 transition-colors"
           >
             <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0 ${
               layers[key]
-                ? "border-neutral-500 bg-neutral-700"
-                : "border-neutral-700 bg-transparent"
+                ? "border-brand-teal bg-brand-teal/10"
+                : "border-gray-300 bg-transparent"
             }`}>
               {layers[key] && (
-                <svg className="h-2.5 w-2.5 text-neutral-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <svg className="h-2.5 w-2.5 text-brand-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               )}
@@ -77,7 +77,7 @@ export default function LayerControls({ layers, onToggle }: LayerControlsProps) 
             <div className="flex items-center justify-center w-4 shrink-0">
               <LayerIndicator color={color} style={style} />
             </div>
-            <span className={layers[key] ? "text-neutral-200" : "text-neutral-500"}>
+            <span className={layers[key] ? "text-brand-navy" : "text-brand-teal"}>
               {label}
             </span>
           </button>
