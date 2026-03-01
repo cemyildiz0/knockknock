@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase-server";
 import { apiError } from "@/lib/api-utils";
+import { pointInMultiPolygon } from "@/lib/geo-utils";
 
 export async function GET(
   request: Request,
@@ -35,11 +36,22 @@ export async function GET(
     const { data: regions } = await supabase
       .from("livability_regions")
       .select(
-        "id, geoid, score, score_engage, score_env, score_health, score_house, score_opp, score_prox, score_trans, metrics, policies, demographics, climate, disaster_natural_hazard_risk, employ_unemp_rate"
-      )
-      .limit(1);
+        "id, geoid, score, score_engage, score_env, score_health, score_house, score_opp, score_prox, score_trans, metrics, policies, demographics, climate, disaster_natural_hazard_risk, employ_unemp_rate, geometry"
+      );
 
-    result.livability = regions?.[0] ?? null;
+    let matched = null;
+    if (regions) {
+      for (const region of regions) {
+        if (pointInMultiPolygon(neighborhood.center_lng, neighborhood.center_lat, region.geometry)) {
+          // Strip geometry from the response (large payload)
+          const { geometry: _, ...regionData } = region;
+          matched = regionData;
+          break;
+        }
+      }
+    }
+
+    result.livability = matched;
   }
 
   if (include.includes("pois")) {

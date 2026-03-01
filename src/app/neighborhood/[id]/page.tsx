@@ -16,8 +16,11 @@ import {
 } from "lucide-react";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
 import type { Review } from "@/types/review";
+import type { LivabilityRegion } from "@/types/livability";
+import type { PoiCounts } from "@/types/poi";
 import StarRating from "@/components/StarRating";
 import LikeButton from "@/components/LikeButton";
+import NeighborhoodStats from "@/components/NeighborhoodStats";
 
 function StarBar({ rating, size = 20 }: { rating: number; size?: number }) {
   return (
@@ -87,6 +90,8 @@ export default function NeighborhoodPage() {
     average: null,
     total: 0,
   });
+  const [livability, setLivability] = useState<LivabilityRegion | null>(null);
+  const [poiCounts, setPoiCounts] = useState<PoiCounts | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -98,16 +103,20 @@ export default function NeighborhoodPage() {
       }
 
       try {
-        const res = await fetch(`/api/neighborhoods/${id}?include=reviews`);
+        const res = await fetch(`/api/neighborhoods/${id}?include=reviews,livability,pois`);
         if (!res.ok) {
           console.error("Error fetching neighborhood:", res.statusText);
         } else {
           const json: {
             neighborhood: CommunityNeighborhood;
             reviews?: ReviewsPayload;
+            livability?: LivabilityRegion | null;
+            poi_counts?: PoiCounts | null;
           } = await res.json();
 
           setNeighborhood(json.neighborhood);
+          setLivability(json.livability ?? null);
+          setPoiCounts(json.poi_counts ?? null);
 
           if (json.reviews) {
             setReviews(json.reviews.data);
@@ -271,8 +280,11 @@ export default function NeighborhoodPage() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main content -- reviews */}
+          {/* Main content */}
           <div className="lg:col-span-2">
+            {/* Neighborhood stats */}
+            <NeighborhoodStats livability={livability} poiCounts={poiCounts} />
+
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-brand-navy flex items-center gap-2">
                 <MessageSquare size={20} className="text-brand-teal" />
