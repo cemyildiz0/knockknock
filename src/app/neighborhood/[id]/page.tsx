@@ -378,11 +378,7 @@ export default function NeighborhoodPage() {
                   <PenLine size={14} />
                   Write a Review
                 </button>
-
-                {/* added button function */}
-                <button onClick={() => router.push(`/neighborhoods/${neighborhoodId}/write-review`)}>
-                  Write a Review
-                </button>
+    
               </div>
             )}
 
