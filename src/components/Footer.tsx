@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="bg-[#0f1f35] border-t border-white/5">
       <div className="max-w-7xl mx-auto px-8 py-10 flex flex-col items-center gap-2">
         <Image
-          src="/assets/logo-white.png"
+          src="/assets/logo-white.PNG"
           alt="Knock Knock"
           width={160}
           height={38}
