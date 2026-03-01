@@ -69,9 +69,6 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-3">
-            <Link href="/knocking" className="hover:opacity-80 hover:text-orange-300 transition-opacity text-white">
-                <h1>Knock</h1>
-            </Link>
             <Link href="/saved" className="hover:opacity-80 hover:text-orange-300 transition-opacity text-white">
                 <h1>Saved</h1>
             </Link>
