@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { LogIn, LogOut, UserCircle, Bookmark } from "lucide-react";
+import { LogIn, LogOut, Bookmark } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import type { User, Session } from "@supabase/supabase-js";
 
@@ -80,7 +80,6 @@ export default function Navbar() {
           {user ? (
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
-                <UserCircle size={15} className="text-brand-mint" />
                 <span className="text-sm text-white/90 hidden sm:inline">
                   {user.user_metadata?.display_name || user.email?.split("@")[0]}
                 </span>
