@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { LogIn, LogOut, Bookmark } from "lucide-react";
+import { LogIn, LogOut, Bookmark, ChevronDown } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import type { User, Session } from "@supabase/supabase-js";
 
@@ -16,6 +16,8 @@ export default function Navbar() {
 
   const [user, setUser] = useState<User | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
   const handleScroll = useCallback(() => {
@@ -42,7 +44,18 @@ export default function Navbar() {
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   async function handleLogout() {
+    setMenuOpen(false);
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     router.push("/");
@@ -78,18 +91,28 @@ export default function Navbar() {
           </Link>
 
           {user ? (
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
+            <div ref={menuRef} className="relative">
+              <button
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 backdrop-blur-sm transition-colors"
+              >
                 <span className="text-sm text-white/90">
                   {user.user_metadata?.display_name || user.email?.split("@")[0]}
                 </span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 text-white/40 hover:text-white transition-colors text-sm"
-              >
-                <LogOut size={14} />
+                <ChevronDown size={13} className={`text-white/50 transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`} />
               </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-40 rounded-xl bg-brand-navy border border-white/10 shadow-lg overflow-hidden">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                  >
+                    <LogOut size={14} />
+                    Sign out
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <Link
