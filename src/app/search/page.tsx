@@ -14,6 +14,7 @@ import {
   Loader2,
   Search,
 } from "lucide-react";
+import { proxyImageUrl } from "@/lib/proxy-image";
 
 interface Recommendation {
   neighborhood_id: number;
@@ -83,7 +84,7 @@ function ResultCard({ rec, rank }: { rec: Recommendation; rank: number }) {
       <div className={`relative w-full overflow-hidden ${rank === 1 ? "h-56" : "h-40"}`}>
         {rec.neighborhood?.image_url ? (
           <Image
-            src={rec.neighborhood.image_url}
+            src={proxyImageUrl(rec.neighborhood.image_url)!}
             alt={rec.neighborhood_name}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
