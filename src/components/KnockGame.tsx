@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { BedDouble, Bath, Ruler, Layers, MapPin } from "lucide-react";
 import type { Home } from "@/types/home";
-import { proxyImageUrl } from "@/lib/proxy-image";
 import KnockAnimation from "@/components/KnockAnimation";
 import KnockResults from "@/components/KnockResults";
 
@@ -89,7 +88,7 @@ function HomePanel({
       <div className="relative w-full aspect-[4/3] bg-brand-navy/60">
         {home.image_url ? (
           <Image
-            src={proxyImageUrl(home.image_url)!}
+            src={home.image_url}
             alt={home.address_line1}
             fill
             unoptimized

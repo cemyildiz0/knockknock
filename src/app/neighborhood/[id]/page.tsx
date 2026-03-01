@@ -11,7 +11,6 @@ import type { LivabilityRegion } from "@/types/livability";
 import type { PoiCounts } from "@/types/poi";
 import NeighborhoodStats from "@/components/NeighborhoodStats";
 import KnockGame from "@/components/KnockGame";
-import { proxyImageUrl } from "@/lib/proxy-image";
 
 const NeighborhoodBoundaryMap = dynamic(
   () => import("@/components/NeighborhoodBoundaryMap"),
@@ -145,7 +144,7 @@ export default function NeighborhoodPage() {
         {neighborhood.image_url ? (
           <>
             <Image
-              src={proxyImageUrl(neighborhood.image_url)!}
+              src={neighborhood.image_url}
               alt={neighborhood.name}
               fill
               unoptimized

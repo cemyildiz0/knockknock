@@ -7,7 +7,6 @@ import { MapPin, Star, Heart, Sparkles, Navigation } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
 import { createClient } from "@/lib/supabase-browser";
-import { proxyImageUrl } from "@/lib/proxy-image";
 
 const supabase = createClient();
 
@@ -138,7 +137,7 @@ export default function NeighborhoodCard({
       {image_url && (
         <div className={`relative w-full overflow-hidden ${featured ? "h-64" : "h-40"}`}>
           <Image
-            src={proxyImageUrl(image_url)!}
+            src={image_url}
             alt={name}
             fill
             unoptimized

@@ -15,7 +15,6 @@ import {
   Star,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
-import { proxyImageUrl } from "@/lib/proxy-image";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
 import type { Home } from "@/types/home";
 import type { BoundaryEntry, HomePoint } from "@/components/SavedMap";
@@ -79,7 +78,7 @@ function NeighborhoodItem({
     >
       <div className="w-[88px] flex-shrink-0 bg-gray-100 overflow-hidden">
         {item.image_url ? (
-          <img src={proxyImageUrl(item.image_url) ?? undefined} alt={item.name} className="w-full h-full object-cover" />
+          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <Compass size={18} className="text-gray-300" />
@@ -153,7 +152,7 @@ function HomeItem({
     >
       <div className="w-[88px] flex-shrink-0 bg-gray-100 overflow-hidden">
         {item.image_url ? (
-          <img src={proxyImageUrl(item.image_url) ?? undefined} alt={item.address_line1} className="w-full h-full object-cover" />
+          <img src={item.image_url} alt={item.address_line1} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <HomeIcon size={18} className="text-gray-300" />

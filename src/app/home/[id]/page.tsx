@@ -22,7 +22,6 @@ import {
 import type { Home } from "@/types/home";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
 import { createClient } from "@/lib/supabase-browser";
-import { proxyImageUrl } from "@/lib/proxy-image";
 
 function StarBar({ rating, size = 20 }: { rating: number; size?: number }) {
   return (
@@ -298,7 +297,7 @@ export default function HomePage() {
         {home.image_url ? (
           <>
             <Image
-              src={proxyImageUrl(home.image_url)!}
+              src={home.image_url}
               alt={home.address_line1}
               fill
               unoptimized
@@ -426,7 +425,7 @@ export default function HomePage() {
                 {neighborhood.image_url && (
                   <div className="relative w-full h-[180px]">
                     <Image
-                      src={proxyImageUrl(neighborhood.image_url)!}
+                      src={neighborhood.image_url}
                       alt={neighborhood.name}
                       fill
                       unoptimized

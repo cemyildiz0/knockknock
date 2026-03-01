@@ -6,7 +6,6 @@ import { MapPin, Heart, Sparkles, BedDouble, Bath, Layers, Ruler, Star } from "l
 import { useState, useEffect } from "react";
 import type { Home } from "@/types/home";
 import { createClient } from "@/lib/supabase-browser";
-import { proxyImageUrl } from "@/lib/proxy-image";
 
 const supabase = createClient();
 
@@ -122,7 +121,7 @@ export default function HomeCard({ home, aiDescription, aiScore, featured, image
       {image_url ? (
         <div className={`relative w-full overflow-hidden ${featured ? "h-64" : "h-40"}`}>
           <img
-            src={proxyImageUrl(image_url) ?? undefined}
+            src={image_url}
             alt={address_line1}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
