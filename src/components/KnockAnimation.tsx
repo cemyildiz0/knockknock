@@ -136,7 +136,7 @@ export default function KnockAnimation({ side, onComplete }: Props) {
 
         @keyframes knock-bounce {
           0%   { transform: translateX(0); }
-          40%  { transform: translateX(-10px); }
+          40%  { transform: translateX(-45px); }
           100% { transform: translateX(0); }
         }
 
@@ -148,13 +148,13 @@ export default function KnockAnimation({ side, onComplete }: Props) {
 
         @keyframes knock-bounce-right {
           0%   { transform: translateX(0); }
-          40%  { transform: translateX(10px); }
+          40%  { transform: translateX(45px); }
           100% { transform: translateX(0); }
         }
 
         @keyframes knock-door-open {
           from { transform: perspective(400px) rotateY(0deg); }
-          to   { transform: perspective(400px) rotateY(-70deg); }
+          to   { transform: perspective(400px) rotateY(70deg); }
         }
 
         @keyframes knock-fade-out {

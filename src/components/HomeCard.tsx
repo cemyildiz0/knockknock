@@ -121,7 +121,7 @@ export default function HomeCard({ home, aiDescription, aiScore, featured, image
 
         {/* Property type */}
         {property_type && (
-          <span className="inline-block text-[10px] font-semibold uppercase tracking-wide text-brand-teal/80 bg-brand-teal/8 border border-brand-teal/15 rounded px-2 py-0.5 mb-2.5">
+          <span className="inline-block text-[10px] font-semibold uppercase tracking-wide text-brand-teal bg-brand-teal/20 border border-brand-teal/40 rounded px-2 py-0.5 mb-2.5">
             {property_type}
           </span>
         )}

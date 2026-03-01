@@ -110,7 +110,7 @@ function HomePanel({
           <p className="text-white/50 text-xs mb-3">{home.city}</p>
 
           {home.property_type && (
-            <span className="inline-block text-[10px] font-semibold uppercase tracking-wide text-brand-mint/90 bg-brand-mint/10 border border-brand-mint/20 rounded px-2 py-0.5 mb-2">
+            <span className="inline-block text-[10px] font-semibold uppercase tracking-wide text-brand-mint bg-brand-mint/20 border border-brand-mint/40 rounded px-2 py-0.5 mb-2">
               {home.property_type}
             </span>
           )}

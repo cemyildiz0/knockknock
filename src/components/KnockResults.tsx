@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import type { Home } from "@/types/home";
 import HomeCard from "@/components/HomeCard";
 
@@ -127,20 +127,17 @@ export default function KnockResults({ selections, allHomes, onPlayAgain }: Prop
   return (
     <div className="py-8">
       {/* Taste profile card */}
-      <div className="bg-brand-navy rounded-2xl p-6 mb-8">
+      <div className="bg-white rounded-2xl p-6 mb-8 border border-brand-teal/20">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-xl bg-brand-mint/15 flex items-center justify-center">
-            <Home size={18} className="text-brand-mint" />
-          </div>
-          <h3 className="text-white font-bold text-lg">Your taste profile</h3>
+          <h3 className="text-brand-navy font-bold text-lg">Your taste profile</h3>
         </div>
 
         {prefs ? (
-          <p className="text-white/70 text-sm leading-relaxed">
+          <p className="text-brand-navy/70 text-sm leading-relaxed">
             {buildSummary(prefs)}
           </p>
         ) : (
-          <p className="text-white/70 text-sm">
+          <p className="text-brand-navy/70 text-sm">
             You liked both sides equally — you have broad taste.
           </p>
         )}
