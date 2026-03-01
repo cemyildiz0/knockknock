@@ -79,8 +79,8 @@ export default function Navbar() {
 
           {user ? (
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
-                <span className="text-sm text-white/90 hidden sm:inline">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
+                <span className="text-sm text-white/90">
                   {user.user_metadata?.display_name || user.email?.split("@")[0]}
                 </span>
               </div>
