@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Heart, Sparkles, BedDouble, Bath, Layers, Ruler } from "lucide-react";
+import { MapPin, Heart, Sparkles, BedDouble, Bath, Layers, Ruler, Star } from "lucide-react";
 import { useState } from "react";
 import type { Home } from "@/types/home";
 
@@ -29,9 +29,29 @@ function StatPill({ icon, value, label }: { icon: React.ReactNode; value: React.
   );
 }
 
+function StarBar({ rating, size = 14 }: { rating: number; size?: number }) {
+  return (
+    <div className="flex items-center gap-px">
+      {[1, 2, 3, 4, 5].map((star) => {
+        const fill = Math.min(1, Math.max(0, rating - (star - 1)));
+        return (
+          <div key={star} className="relative" style={{ width: size, height: size }}>
+            <Star size={size} className="text-gray-200 fill-gray-200" />
+            {fill > 0 && (
+              <div className="absolute inset-0 overflow-hidden" style={{ width: `${fill * 100}%` }}>
+                <Star size={size} className="text-brand-orange fill-brand-orange" />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function HomeCard({ home, aiDescription, aiScore, featured, image_url }: Props) {
   const [saved, setSaved] = useState(false);
-  const { id, address_line1, city, state, zip, property_type, living_area, beds, baths, levels, last_sale_price, last_sale_date } = home;
+  const { id, address_line1, city, state, zip, property_type, living_area, beds, baths, levels, last_sale_price, last_sale_date, rating, review_count } = home;
 
   return (
     <Link
@@ -80,7 +100,6 @@ export default function HomeCard({ home, aiDescription, aiScore, featured, image
           )}
         </div>
       ) : (
-        /* No image fallback */
         <div className="h-24 bg-brand-navy/5 flex items-center justify-center">
           <MapPin size={24} className="text-brand-teal/25" />
         </div>
@@ -94,10 +113,10 @@ export default function HomeCard({ home, aiDescription, aiScore, featured, image
             <h3 className="font-bold text-brand-navy text-base leading-snug mb-1 group-hover:text-brand-teal-dark transition-colors">
               {address_line1}
             </h3>
-            <div className="flex items-center gap-1 text-brand-teal text-xs mb-2">
+            {/* <div className="flex items-center gap-1 text-brand-teal text-xs mb-2">
               <MapPin size={10} />
               {[city, state, zip].filter(Boolean).join(", ")}
-            </div>
+            </div> */}
           </>
         )}
 
@@ -106,6 +125,17 @@ export default function HomeCard({ home, aiDescription, aiScore, featured, image
           <span className="inline-block text-[10px] font-semibold uppercase tracking-wide text-brand-teal/80 bg-brand-teal/8 border border-brand-teal/15 rounded px-2 py-0.5 mb-2.5">
             {property_type}
           </span>
+        )}
+
+        {/* Rating */}
+        {rating != null && (
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <StarBar rating={rating} />
+            <span className="text-xs font-bold text-brand-navy">{rating.toFixed(1)}</span>
+            {review_count != null && (
+              <span className="text-[11px] text-brand-teal">({review_count})</span>
+            )}
+          </div>
         )}
 
         {/* Stats row */}
@@ -122,11 +152,11 @@ export default function HomeCard({ home, aiDescription, aiScore, featured, image
             <span className="text-lg font-bold text-brand-navy">
               {formatPrice(last_sale_price)}
             </span>
-            {last_sale_date && (
+            {/* {last_sale_date && (
               <span className="text-[11px] text-brand-teal">
                 sold {new Date(last_sale_date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
               </span>
-            )}
+            )} */}
           </div>
         )}
 
