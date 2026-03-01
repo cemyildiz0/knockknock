@@ -291,7 +291,7 @@ export default function SavedPage() {
 
         if (bdData) {
           setBoundaries(
-            bdData
+            (bdData as { id: number; name: string; boundary: unknown }[])
               .filter((b) => b.boundary != null)
               .map((b) => ({ id: b.id, name: b.name, boundary: b.boundary as MultiPolygon }))
           );
