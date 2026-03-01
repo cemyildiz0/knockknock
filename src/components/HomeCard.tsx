@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
 import { MapPin, Heart, Sparkles, BedDouble, Bath, Layers, Ruler, Star } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Home } from "@/types/home";
+import { createClient } from "@/lib/supabase-browser";
+
+const supabase = createClient();
 
 interface Props {
   home: Home;
@@ -51,7 +55,62 @@ function StarBar({ rating, size = 14 }: { rating: number; size?: number }) {
 
 export default function HomeCard({ home, aiDescription, aiScore, featured, image_url }: Props) {
   const [saved, setSaved] = useState(false);
-  const { id, address_line1, city, state, zip, property_type, living_area, beds, baths, levels, last_sale_price, last_sale_date, rating, review_count } = home;
+  const [loading, setLoading] = useState(false);
+
+  const { id, address_line1, city, state, zip, property_type, living_area, beds, baths, levels, last_sale_price, rating, review_count } = home;
+
+  useEffect(() => {
+    const checkSaved = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("saved_homes")
+        .eq("id", user.id)
+        .single();
+
+      const savedList = (profile?.saved_homes as Home[] | null) ?? [];
+      if (savedList.some((item: any) => item.id === home.id)) setSaved(true);
+    };
+
+    checkSaved();
+  }, [home.id]);
+
+  const toggleSave = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (loading) return;
+    setLoading(true);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("saved_homes")
+      .eq("id", user.id)
+      .single();
+
+    const current = (profile?.saved_homes as Home[] | null) ?? [];
+    const exists = current.some((item: any) => item.id === home.id);
+    const updated = exists
+      ? current.filter((item: any) => item.id !== home.id)
+      : [...current, home];
+
+    setSaved(!exists);
+
+    await supabase
+      .from("profiles")
+      .update({ saved_homes: updated })
+      .eq("id", user.id);
+
+    setLoading(false);
+  };
 
   return (
     <Link
@@ -70,7 +129,7 @@ export default function HomeCard({ home, aiDescription, aiScore, featured, image
 
           {/* Save button */}
           <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSaved((s) => !s); }}
+            onClick={toggleSave}
             className={`absolute top-3 right-3 p-1.5 rounded-full transition-all ${
               saved ? "bg-brand-orange text-white" : "bg-black/20 backdrop-blur-sm text-white/80 hover:bg-black/40"
             }`}
@@ -108,15 +167,9 @@ export default function HomeCard({ home, aiDescription, aiScore, featured, image
       <div className="p-4">
         {/* Address (if not featured overlay) */}
         {!featured && (
-          <>
-            <h3 className="font-bold text-brand-navy text-base leading-snug mb-1 group-hover:text-brand-teal-dark transition-colors">
-              {address_line1}
-            </h3>
-            {/* <div className="flex items-center gap-1 text-brand-teal text-xs mb-2">
-              <MapPin size={10} />
-              {[city, state, zip].filter(Boolean).join(", ")}
-            </div> */}
-          </>
+          <h3 className="font-bold text-brand-navy text-base leading-snug mb-1 group-hover:text-brand-teal-dark transition-colors">
+            {address_line1}
+          </h3>
         )}
 
         {/* Property type */}
@@ -151,11 +204,6 @@ export default function HomeCard({ home, aiDescription, aiScore, featured, image
             <span className="text-lg font-bold text-brand-navy">
               {formatPrice(last_sale_price)}
             </span>
-            {/* {last_sale_date && (
-              <span className="text-[11px] text-brand-teal">
-                sold {new Date(last_sale_date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-              </span>
-            )} */}
           </div>
         )}
 

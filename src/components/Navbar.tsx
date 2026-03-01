@@ -4,9 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { LogIn, LogOut, UserCircle } from "lucide-react";
+import { LogIn, LogOut, UserCircle, Bookmark } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
+
+const SOLID_PATHS = ["/saved"];
 
 export default function Navbar() {
   const router = useRouter();
@@ -49,10 +51,12 @@ export default function Navbar() {
 
   if (pathname === "/auth") return null;
 
+  const solid = scrolled || SOLID_PATHS.includes(pathname);
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color] duration-300 ease-out border-b ${
-        scrolled
+        solid
           ? "bg-brand-navy/95 backdrop-blur-md border-white/5"
           : "bg-transparent backdrop-blur-none border-transparent"
       }`}
@@ -69,9 +73,9 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-3">
-            <Link href="/saved" className="hover:opacity-80 hover:text-orange-300 transition-opacity text-white">
-                <h1>Saved</h1>
-            </Link>
+          <Link href="/saved" className="text-white/70 hover:text-brand-orange transition-colors" title="Saved">
+            <Bookmark size={18} />
+          </Link>
 
           {user ? (
             <div className="flex items-center gap-3">

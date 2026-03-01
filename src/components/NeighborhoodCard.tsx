@@ -116,7 +116,8 @@ export default function NeighborhoodCard({
       );
       setSaved(false);
     } else {
-      updatedSaved = [...currentSaved, neighborhood];
+      const { id, name, city, state, image_url, rating, review_count } = neighborhood;
+      updatedSaved = [...currentSaved, { id, name, city, state, image_url, rating, review_count }];
       setSaved(true);
     }
 

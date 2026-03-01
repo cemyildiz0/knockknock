@@ -93,7 +93,11 @@ CREATE POLICY "Users can unlike reviews"
   ON review_likes FOR DELETE
   USING (auth.uid() = user_id);
 
--- 4. RPC: Get reviewed addresses within a bounding box (for map heatmap)
+-- 4. Add saved columns to profiles (if not already present)
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS saved JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS saved_homes JSONB DEFAULT '[]'::jsonb;
+
+-- 5. RPC: Get reviewed addresses within a bounding box (for map heatmap)
 CREATE OR REPLACE FUNCTION get_reviewed_addresses(
   p_south FLOAT,
   p_north FLOAT,

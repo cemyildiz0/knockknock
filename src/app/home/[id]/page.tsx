@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import type { Home } from "@/types/home";
 import type { Review } from "@/types/review";
+import { createClient } from "@/lib/supabase-browser";
 import StarRating from "@/components/StarRating";
 import LikeButton from "@/components/LikeButton";
 
@@ -111,6 +112,8 @@ interface ReviewsPayload {
   total: number;
 }
 
+const supabase = createClient();
+
 export default function HomePage() {
   const params = useParams();
   const [home, setHome] = useState<Home | null>(null);
@@ -157,8 +160,48 @@ export default function HomePage() {
       setLoading(false);
     }
 
+    async function checkSaved() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("saved_homes")
+        .eq("id", user.id)
+        .single();
+
+      const savedList = (profile?.saved_homes as Home[] | null) ?? [];
+      setSaved(savedList.some((item) => item.id === (params.id as string)));
+    }
+
     fetchHome();
+    checkSaved();
   }, [params.id]);
+
+  async function toggleSave() {
+    if (!home) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      window.location.href = "/auth";
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("saved_homes")
+      .eq("id", user.id)
+      .single();
+
+    const current = (profile?.saved_homes as Home[] | null) ?? [];
+    const exists = current.some((item) => item.id === home.id);
+    const updated = exists
+      ? current.filter((item) => item.id !== home.id)
+      : [...current, home];
+
+    setSaved(!exists);
+    await supabase.from("profiles").update({ saved_homes: updated }).eq("id", user.id);
+  }
 
   if (loading) {
     return (
@@ -274,7 +317,7 @@ export default function HomePage() {
 
             {/* Save button */}
             <button
-              onClick={() => setSaved((s) => !s)}
+              onClick={toggleSave}
               className={`flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-all ${
                 saved
                   ? "bg-brand-orange text-white"
