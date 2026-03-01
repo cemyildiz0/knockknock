@@ -63,7 +63,6 @@ function StatPill({ icon, value, label }: { icon: React.ReactNode; value: React.
 
 function HomePanel({
   home,
-  side,
   onSelect,
   disabled,
 }: {
@@ -172,8 +171,7 @@ export default function KnockGame({ neighborhoodId }: Props) {
           return;
         }
 
-        const count = Math.min(10, Math.max(5, Math.floor(json.homes.length / 2)));
-        const built = buildRounds(json.homes, count);
+        const built = buildRounds(json.homes, 5);
         setHomes(json.homes);
         setRounds(built);
         setPhase("playing");
@@ -213,9 +211,12 @@ export default function KnockGame({ neighborhoodId }: Props) {
     setPhase("animating");
   }
 
+  function handleSkip() {
+    setPhase("results");
+  }
+
   function handlePlayAgain() {
-    const count = Math.min(10, Math.max(5, Math.floor(homes.length / 2)));
-    const built = buildRounds(homes, count);
+    const built = buildRounds(homes, 5);
     setRounds(built);
     setCurrentRound(0);
     setSelections([]);
@@ -318,8 +319,8 @@ export default function KnockGame({ neighborhoodId }: Props) {
         )}
       </div>
 
-      {/* Both equally */}
-      <div className="flex justify-center mt-5">
+      {/* Both equally + skip */}
+      <div className="flex flex-col items-center gap-3 mt-5">
         <button
           onClick={() => handleSelect("both")}
           disabled={phase === "animating"}
@@ -327,6 +328,15 @@ export default function KnockGame({ neighborhoodId }: Props) {
         >
           I like both equally
         </button>
+        {selections.length > 0 && (
+          <button
+            onClick={handleSkip}
+            disabled={phase === "animating"}
+            className="text-xs text-brand-navy/30 hover:text-brand-navy/60 transition-colors disabled:cursor-not-allowed"
+          >
+            Skip to results
+          </button>
+        )}
       </div>
     </div>
   );
