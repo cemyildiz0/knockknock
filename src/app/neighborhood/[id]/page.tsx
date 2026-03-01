@@ -148,6 +148,7 @@ export default function NeighborhoodPage() {
               src={proxyImageUrl(neighborhood.image_url)!}
               alt={neighborhood.name}
               fill
+              unoptimized
               className="object-cover"
               priority
             />

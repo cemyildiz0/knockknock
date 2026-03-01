@@ -141,6 +141,7 @@ export default function NeighborhoodCard({
             src={proxyImageUrl(image_url)!}
             alt={name}
             fill
+            unoptimized
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
 

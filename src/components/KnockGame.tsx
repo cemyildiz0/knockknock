@@ -92,6 +92,7 @@ function HomePanel({
             src={proxyImageUrl(home.image_url)!}
             alt={home.address_line1}
             fill
+            unoptimized
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 50vw"
           />

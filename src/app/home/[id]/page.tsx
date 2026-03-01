@@ -301,6 +301,7 @@ export default function HomePage() {
               src={proxyImageUrl(home.image_url)!}
               alt={home.address_line1}
               fill
+              unoptimized
               className="object-cover"
               priority
             />
@@ -428,6 +429,7 @@ export default function HomePage() {
                       src={proxyImageUrl(neighborhood.image_url)!}
                       alt={neighborhood.name}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>

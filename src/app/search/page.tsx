@@ -87,6 +87,7 @@ function ResultCard({ rec, rank }: { rec: Recommendation; rank: number }) {
             src={proxyImageUrl(rec.neighborhood.image_url)!}
             alt={rec.neighborhood_name}
             fill
+            unoptimized
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
