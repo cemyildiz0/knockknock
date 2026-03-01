@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, ArrowLeft, ChevronRight, Navigation, Thermometer } from "lucide-react";
@@ -10,6 +11,11 @@ import type { LivabilityRegion } from "@/types/livability";
 import type { PoiCounts } from "@/types/poi";
 import NeighborhoodStats from "@/components/NeighborhoodStats";
 import KnockGame from "@/components/KnockGame";
+
+const NeighborhoodBoundaryMap = dynamic(
+  () => import("@/components/NeighborhoodBoundaryMap"),
+  { ssr: false }
+);
 
 function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 3958.8;
@@ -34,6 +40,7 @@ export default function NeighborhoodPage() {
   const [poiCounts, setPoiCounts] = useState<PoiCounts | null>(null);
   const [loading, setLoading] = useState(true);
   const [distanceMi, setDistanceMi] = useState<number | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     async function fetchNeighborhood() {
@@ -81,6 +88,7 @@ export default function NeighborhoodPage() {
           neighborhood.center_lng!
         );
         setDistanceMi(d);
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
       () => {}
     );
@@ -211,6 +219,19 @@ export default function NeighborhoodPage() {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
+            {/* Boundary map */}
+            {neighborhood.boundary && (
+              <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                <div className="h-56">
+                  <NeighborhoodBoundaryMap
+                    boundary={neighborhood.boundary}
+                    name={neighborhood.name}
+                    userLocation={userLocation ?? undefined}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* About */}
             <div className="bg-white rounded-xl border border-gray-100 p-5">
               <h3 className="text-sm font-bold text-brand-navy mb-3">About this Neighborhood</h3>
