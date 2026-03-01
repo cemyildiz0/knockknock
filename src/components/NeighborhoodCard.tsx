@@ -3,8 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Star, Heart, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
+import { createClient } from "@/lib/supabase-browser";
+
+const supabase = createClient();
 
 interface Props {
   neighborhood: CommunityNeighborhood;
@@ -22,7 +25,10 @@ function StarBar({ rating, size = 14 }: { rating: number; size?: number }) {
           <div key={star} className="relative" style={{ width: size, height: size }}>
             <Star size={size} className="text-gray-200 fill-gray-200" />
             {fill > 0 && (
-              <div className="absolute inset-0 overflow-hidden" style={{ width: `${fill * 100}%` }}>
+              <div
+                className="absolute inset-0 overflow-hidden"
+                style={{ width: `${fill * 100}%` }}
+              >
                 <Star size={size} className="text-brand-orange fill-brand-orange" />
               </div>
             )}
@@ -33,16 +39,98 @@ function StarBar({ rating, size = 14 }: { rating: number; size?: number }) {
   );
 }
 
-export default function NeighborhoodCard({ neighborhood, aiDescription, aiScore, featured }: Props) {
+export default function NeighborhoodCard({
+  neighborhood,
+  aiDescription,
+  aiScore,
+  featured,
+}: Props) {
   const [saved, setSaved] = useState(false);
-  const { name, image_url, city, state, description, rating, review_count } = neighborhood;
+  const [loading, setLoading] = useState(false);
+
+  const { name, image_url, city, state, description, rating, review_count } =
+    neighborhood;
+
+  useEffect(() => {
+    const checkSaved = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("saved")
+        .eq("id", user.id)
+        .single();
+
+      const savedList = profile?.saved || [];
+
+      const exists = savedList.some(
+        (item: any) => item.id === neighborhood.id
+      );
+
+      if (exists) setSaved(true);
+    };
+
+    checkSaved();
+  }, []);
+
+  const toggleSave = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (loading) return;
+    setLoading(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("You must be logged in to save.");
+      setLoading(false);
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("saved")
+      .eq("id", user.id)
+      .single();
+
+    const currentSaved = profile?.saved || [];
+
+    const exists = currentSaved.some(
+      (item: any) => item.id === neighborhood.id
+    );
+
+    let updatedSaved;
+
+    if (exists) {
+      updatedSaved = currentSaved.filter(
+        (item: any) => item.id !== neighborhood.id
+      );
+      setSaved(false);
+    } else {
+      updatedSaved = [...currentSaved, neighborhood];
+      setSaved(true);
+    }
+
+    await supabase
+      .from("profiles")
+      .update({ saved: updatedSaved })
+      .eq("id", user.id);
+
+    setLoading(false);
+  };
 
   return (
     <Link
       href={`/neighborhood/${neighborhood.id}`}
       className="group block bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-brand-teal/25 transition-all duration-200 break-inside-avoid mb-5"
     >
-      {/* Image -- taller for featured */}
       {image_url && (
         <div className={`relative w-full overflow-hidden ${featured ? "h-64" : "h-40"}`}>
           <Image
@@ -51,97 +139,53 @@ export default function NeighborhoodCard({ neighborhood, aiDescription, aiScore,
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
+
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
-          {/* Save button */}
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setSaved((s) => !s);
-            }}
+            onClick={toggleSave}
             className={`absolute top-3 right-3 p-1.5 rounded-full transition-all ${
               saved
                 ? "bg-brand-orange text-white"
                 : "bg-black/20 backdrop-blur-sm text-white/80 hover:bg-black/40"
             }`}
-            aria-label="Save"
           >
             <Heart size={13} className={saved ? "fill-current" : ""} />
           </button>
 
-          {/* AI score */}
           {aiScore != null && (
             <div className="absolute top-3 left-3 flex items-center gap-1 bg-brand-mint text-brand-navy text-[10px] font-bold px-2 py-0.5 rounded">
               <Sparkles size={9} />
               {aiScore}%
             </div>
           )}
-
-          {/* Name overlaid on image for featured cards */}
-          {featured && (
-            <div className="absolute bottom-3 left-4 right-4">
-              <h3 className="text-xl font-bold text-white leading-tight">{name}</h3>
-              {(city || state) && (
-                <div className="flex items-center gap-1 text-white/70 text-xs mt-0.5">
-                  <MapPin size={10} />
-                  {[city, state].filter(Boolean).join(", ")}
-                </div>
-              )}
-            </div>
-          )}
         </div>
       )}
 
-      {/* No image fallback */}
-      {!image_url && (
-        <div className="h-24 bg-brand-navy/5 flex items-center justify-center">
-          <MapPin size={24} className="text-brand-teal/25" />
-        </div>
-      )}
-
-      {/* Content */}
       <div className="p-4">
-        {/* Name + location (if not featured overlay) */}
-        {!featured && (
-          <>
-            <h3 className="font-bold text-brand-navy text-base leading-snug mb-1 group-hover:text-brand-teal-dark transition-colors">
-              {name}
-            </h3>
-            {(city || state) && (
-              <div className="flex items-center gap-1 text-brand-teal text-xs mb-2">
-                <MapPin size={10} />
-                {[city, state].filter(Boolean).join(", ")}
-              </div>
-            )}
-          </>
-        )}
+        <h3 className="font-bold text-brand-navy text-base mb-1">{name}</h3>
 
-        {/* Rating */}
+        <div className="flex items-center gap-1 text-xs text-brand-teal mb-2">
+          <MapPin size={10} />
+          {[city, state].filter(Boolean).join(", ")}
+        </div>
+
         {rating != null && (
-          <div className="flex items-center gap-1.5 mb-2.5">
+          <div className="flex items-center gap-1.5 mb-2">
             <StarBar rating={rating} />
-            <span className="text-xs font-bold text-brand-navy">{rating.toFixed(1)}</span>
+            <span className="text-xs font-bold">{rating.toFixed(1)}</span>
             {review_count != null && (
-              <span className="text-[11px] text-brand-teal">({review_count})</span>
+              <span className="text-[11px] text-brand-teal">
+                ({review_count})
+              </span>
             )}
           </div>
         )}
 
-        {/* Description */}
         {description && (
-          <p className="text-xs text-gray-500 leading-relaxed line-clamp-3 mb-3">
+          <p className="text-xs text-gray-500 line-clamp-3">
             {description}
           </p>
-        )}
-
-        {/* AI description */}
-        {aiDescription && (
-          <div className="bg-brand-mint/8 border border-brand-mint/20 rounded-lg p-2.5 mb-3">
-            <p className="text-[11px] text-brand-navy/60 italic leading-relaxed">
-              &quot;{aiDescription}&quot;
-            </p>
-          </div>
         )}
       </div>
     </Link>

@@ -6,6 +6,6 @@ export interface Neighborhood {
   city: string;
   description?: string;
   imageUrl?: string;
-
+  saved?: boolean;
   reviews: Review[];
 }

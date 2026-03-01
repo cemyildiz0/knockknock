@@ -1,51 +1,65 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Star } from "lucide-react";
+import { createClient } from "@/lib/supabase-browser";
 
-interface SavedItem {
-  id: number;
-  name: string;
-  image: string;
-  rating: number;
-  reviews: number;
-  location: string;
-}
+const supabase = createClient();
 
 export default function SavedPage() {
-  const [saved] = useState<SavedItem[]>([
-    {
-      id: 1,
-      name: "Downtown Irvine",
-      image: "/assets/hero-neighborhood.jpeg",
-      rating: 4.5,
-      reviews: 128,
-      location: "Irvine, CA",
-    },
-    {
-      id: 2,
-      name: "Woodbridge",
-      image: "/assets/hero-neighborhood.jpeg",
-      rating: 4.2,
-      reviews: 96,
-      location: "Irvine, CA",
-    },
-  ]);
+  const [saved, setSaved] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSaved = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("saved")
+        .eq("id", user.id)
+        .single();
+
+      setSaved(profile?.saved || []);
+      setLoading(false);
+    };
+
+    fetchSaved();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8FAF7] text-black">
-      <div className="px-6 py-10 border-b border-neutral-800">
-        <h1 className="text-3xl font-bold">Saved Places</h1>
-        <p className="text-neutral-500 mt-1">
-          Your bookmarked neighborhoods
-        </p>
+      <div className="relative w-full h-[300px] md:h-[400px]">
+        <Image
+          src="/assets/saved-neighborhood.jpg"
+          alt="Saved Places Hero"
+          fill
+          priority
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 flex flex-col justify-center items-center text-white text-center px-4">
+          <h1 className="text-4xl md:text-5xl font-bold">Your Saved Places</h1>
+          <p className="mt-3 text-lg text-neutral-200">
+            Keep track of neighborhoods you love
+          </p>
+        </div>
       </div>
 
       <div className="px-6 py-10">
-        {saved.length === 0 ? (
-          <div className="text-center text-black">
+        {loading ? (
+          <div className="text-center">Loading...</div>
+        ) : saved.length === 0 ? (
+          <div className="text-center">
             <p className="text-lg">You haven’t saved anything yet.</p>
             <Link
               href="/"
@@ -63,7 +77,7 @@ export default function SavedPage() {
               >
                 <div className="relative h-48">
                   <Image
-                    src={item.image}
+                    src={item.image_url}
                     alt={item.name}
                     fill
                     className="object-cover"
@@ -74,17 +88,9 @@ export default function SavedPage() {
                 <div className="p-4 space-y-2">
                   <h2 className="text-xl font-semibold">{item.name}</h2>
 
-                  <div className="flex items-center gap-2 text-sm text-black">
-                    <MapPin size={14} />
-                    {item.location}
-                  </div>
-
                   <div className="flex items-center gap-2 text-sm">
-                    <Star size={16} className="text-orange-500 fill-orange-500" />
-                    <span className="font-medium">{item.rating}</span>
-                    <span className="text-black">
-                      ({item.reviews} reviews)
-                    </span>
+                    <MapPin size={14} />
+                    {[item.city, item.state].filter(Boolean).join(", ")}
                   </div>
 
                   <Link
