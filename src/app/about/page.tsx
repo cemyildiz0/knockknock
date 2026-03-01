@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Star, Users, ShieldCheck, Zap, BarChart2, Heart } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import Link from "next/link";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -12,56 +12,6 @@ const stats = [
   { value: "4.9★", label: "Average App Rating" },
 ];
 
-const values = [
-  {
-    icon: ShieldCheck,
-    title: "Verified Reviews Only",
-    description:
-      "Every review on Knock Knock is tied to a verified resident. We cross-reference lease agreements and utility records so you never read a fake testimonial.",
-  },
-  {
-    icon: Zap,
-    title: "AI-Powered Insights",
-    description:
-      "Our proprietary scoring engine analyzes walkability, transit access, noise levels, school quality, and local amenity density to surface a single, trustworthy AI Score.",
-  },
-  {
-    icon: BarChart2,
-    title: "Real-Time Data",
-    description:
-      "Neighborhood ratings update weekly. Whether a new coffee shop opens or construction begins next door, our scores reflect what's happening right now — not two years ago.",
-  },
-  {
-    icon: Heart,
-    title: "Community First",
-    description:
-      "We're not a listing service. We don't take referral fees from landlords or developers. Our only allegiance is to the people who actually live in the neighborhoods we rate.",
-  },
-];
-
-const team = [
-  {
-    name: "Maya Osei",
-    role: "Co-Founder & CEO",
-    bio: "Former urban planner turned product builder. Maya spent a decade advising city governments on livability metrics before co-founding Knock Knock.",
-    initials: "MO",
-    color: "bg-brand-teal",
-  },
-  {
-    name: "Daniel Park",
-    role: "Co-Founder & CTO",
-    bio: "Ex-Google Maps engineer obsessed with geospatial data. Daniel architected the AI scoring engine that powers every neighborhood rating on the platform.",
-    initials: "DP",
-    color: "bg-brand-orange",
-  },
-  {
-    name: "Sofia Reyes",
-    role: "Head of Community",
-    bio: "Community organizer with roots in tenant advocacy. Sofia ensures that every voice on the platform — from longtime homeowners to first-time renters — is heard equally.",
-    initials: "SR",
-    color: "bg-[#4a90b8]",
-  },
-];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -117,13 +67,13 @@ export default function AboutPage() {
           <div>
             <p className="text-brand-orange text-xs font-semibold uppercase tracking-widest mb-3">Our Mission</p>
             <h2 className="text-3xl font-bold text-brand-navy leading-snug">
-              Transparent data for one of life's biggest decisions.
+              Transparent data for one of life&apos;s biggest decisions.
             </h2>
             <p className="mt-5 text-gray-600 font-normal leading-relaxed">
               Finding a home is already stressful. Finding the <em>right</em> neighborhood that fits your commute, your lifestyle, and your budget is even harder. Most platforms show you glossy photos and vague walkability scores. We show you the truth.
             </p>
             <p className="mt-4 text-gray-600 font-normal leading-relaxed">
-              Founded in 2026, Knock Knock was born from a frustration shared by millions of renters and buyers: the information gap between what a listing promises and what daily life actually feels like. We're here to close that gap.
+              Founded in 2026, Knock Knock was born from a frustration shared by millions of renters and buyers: the information gap between what a listing promises and what daily life actually feels like. We&apos;re here to close that gap.
             </p>
           </div>
 
@@ -138,7 +88,7 @@ export default function AboutPage() {
                 <Star size={14} className="text-brand-orange fill-brand-orange" />
               </div>
               <p className="text-sm text-gray-700 italic leading-relaxed">
-                "I was relocating across the country and had no idea where to start. Knock Knock gave me confidence I never expected to have before signing a lease."
+                &ldquo;I was relocating across the country and had no idea where to start. Knock Knock gave me confidence I never expected to have before signing a lease.&rdquo;
               </p>
               <p className="text-xs text-gray-400 mt-3 font-medium">— Priya N., Irvine CA</p>
             </div>

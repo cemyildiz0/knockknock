@@ -44,6 +44,7 @@ export async function GET(
       for (const region of regions) {
         if (pointInMultiPolygon(neighborhood.center_lng, neighborhood.center_lat, region.geometry)) {
           // Strip geometry from the response (large payload)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { geometry: _, ...regionData } = region;
           matched = regionData;
           break;

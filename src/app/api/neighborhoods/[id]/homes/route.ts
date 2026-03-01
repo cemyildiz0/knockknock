@@ -53,11 +53,13 @@ export async function GET(
   const lat = neighborhood.center_lat;
   const lng = neighborhood.center_lng;
 
-  let { data: homes, error } = await fetchHomesInRadius(lat, lng, PRIMARY_RADIUS);
+  const { data: primaryHomes, error } = await fetchHomesInRadius(lat, lng, PRIMARY_RADIUS);
 
   if (error) {
     return apiError(error.message, 500);
   }
+
+  let homes = primaryHomes;
 
   if ((homes?.length ?? 0) < MIN_HOMES) {
     const { data: expanded, error: expandedError } = await fetchHomesInRadius(
