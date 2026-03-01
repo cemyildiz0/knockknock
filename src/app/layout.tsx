@@ -13,7 +13,7 @@ const inter = Inter({
 
 
 export const metadata: Metadata = {
-  title: "KnockKnock",
+  title: "knock knock.",
   description: "Yelp for Neighborhoods",
 };
 
