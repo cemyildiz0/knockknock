@@ -18,5 +18,12 @@ export interface Home {
   last_sale_price: number | null;
   last_sale_date: string | null; // ISO date string e.g. "2023-10-20"
 
+  // Media
+  image_url: string | null;
+
+  // Reviews
+  rating: number | null;
+  review_count: number | null;
+
   created_at: string | null;
 }
