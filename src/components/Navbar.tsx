@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { LogIn, LogOut, UserCircle, Bookmark } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
-import type { User } from "@supabase/supabase-js";
+import type { User, Session } from "@supabase/supabase-js";
 
 const SOLID_PATHS = ["/saved"];
 
@@ -29,13 +29,13 @@ export default function Navbar() {
   }, [handleScroll]);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
+    supabase.auth.getUser().then((response: { data: { user: User | null } }) => {
+      setUser(response.data.user);
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
       setUser(session?.user ?? null);
     });
 

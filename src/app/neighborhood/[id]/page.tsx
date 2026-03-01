@@ -4,12 +4,28 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, ArrowLeft, ChevronRight, Ruler } from "lucide-react";
+import { MapPin, ArrowLeft, ChevronRight, Navigation, Thermometer } from "lucide-react";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
 import type { LivabilityRegion } from "@/types/livability";
 import type { PoiCounts } from "@/types/poi";
 import NeighborhoodStats from "@/components/NeighborhoodStats";
 import KnockGame from "@/components/KnockGame";
+
+function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 3958.8;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function fmtCost(n: number): string {
+  return `$${Math.round(n).toLocaleString()}`;
+}
 
 export default function NeighborhoodPage() {
   const params = useParams();
@@ -17,6 +33,7 @@ export default function NeighborhoodPage() {
   const [livability, setLivability] = useState<LivabilityRegion | null>(null);
   const [poiCounts, setPoiCounts] = useState<PoiCounts | null>(null);
   const [loading, setLoading] = useState(true);
+  const [distanceMi, setDistanceMi] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchNeighborhood() {
@@ -50,6 +67,24 @@ export default function NeighborhoodPage() {
 
     fetchNeighborhood();
   }, [params.id]);
+
+  useEffect(() => {
+    if (!neighborhood?.center_lat || !neighborhood?.center_lng) return;
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const d = haversine(
+          pos.coords.latitude,
+          pos.coords.longitude,
+          neighborhood.center_lat!,
+          neighborhood.center_lng!
+        );
+        setDistanceMi(d);
+      },
+      () => {}
+    );
+  }, [neighborhood]);
 
   if (loading) {
     return (
@@ -132,22 +167,19 @@ export default function NeighborhoodPage() {
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2">
               {neighborhood.name}
             </h1>
-            <div className="flex flex-wrap items-center gap-4">
-              {(neighborhood.city || neighborhood.state) && (
-                <div className="flex items-center gap-1.5 text-white/70 text-sm">
-                  <MapPin size={13} />
-                  <span>
-                    {[neighborhood.city, neighborhood.state].filter(Boolean).join(", ")}
-                  </span>
-                </div>
-              )}
-              {neighborhood.area_sqmi && (
-                <div className="flex items-center gap-1.5 text-white/70 text-sm">
-                  <Ruler size={13} />
-                  <span>{neighborhood.area_sqmi.toFixed(2)} sq mi</span>
-                </div>
-              )}
-            </div>
+            {livability != null && (
+              <div className="flex flex-wrap items-center gap-4 text-white/70 text-sm">
+                {livability.metrics.met_house_cost != null && (
+                  <span>{fmtCost(livability.metrics.met_house_cost)}/mo cost of living</span>
+                )}
+                  {livability.demographics.demo_income != null && (
+                  <span>|</span>
+                )}
+                {livability.demographics.demo_income != null && (
+                  <span>{fmtCost(livability.demographics.demo_income)} median income</span>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -156,19 +188,12 @@ export default function NeighborhoodPage() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-6 py-3 text-sm overflow-x-auto">
-            {neighborhood.area_sqmi && (
+            {distanceMi != null && (
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-brand-teal">Area</span>
+                <Navigation size={13} className="text-brand-teal" />
+                <span className="text-brand-teal">Distance</span>
                 <span className="font-semibold text-brand-navy">
-                  {neighborhood.area_sqmi.toFixed(2)} sq mi
-                </span>
-              </div>
-            )}
-            {(neighborhood.city || neighborhood.state) && (
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-brand-teal">Location</span>
-                <span className="font-semibold text-brand-navy">
-                  {[neighborhood.city, neighborhood.state].filter(Boolean).join(", ")}
+                  {distanceMi < 0.1 ? "< 0.1 mi" : `${distanceMi.toFixed(1)} mi away`}
                 </span>
               </div>
             )}
@@ -199,24 +224,28 @@ export default function NeighborhoodPage() {
                 </p>
               )}
 
-              <div className="space-y-3 pt-3 border-t border-gray-100">
-                {neighborhood.area_sqmi && (
+              {livability?.climate && (
+                <div className="space-y-3 pt-3 border-t border-gray-100">
                   <div className="flex justify-between text-sm">
-                    <span className="text-brand-teal">Area</span>
+                    <span className="text-brand-teal flex items-center gap-1">
+                      <Thermometer size={12} />
+                      Winter (Jan)
+                    </span>
                     <span className="font-medium text-brand-navy">
-                      {neighborhood.area_sqmi.toFixed(2)} sq mi
+                      {livability.climate.climate_jan_min.toFixed(0)}°–{livability.climate.climate_jan_max.toFixed(0)}°F
                     </span>
                   </div>
-                )}
-                {(neighborhood.city || neighborhood.state) && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-brand-teal">Location</span>
+                    <span className="text-brand-teal flex items-center gap-1">
+                      <Thermometer size={12} />
+                      Summer (Jul)
+                    </span>
                     <span className="font-medium text-brand-navy">
-                      {[neighborhood.city, neighborhood.state].filter(Boolean).join(", ")}
+                      {livability.climate.climate_jul_min.toFixed(0)}°–{livability.climate.climate_jul_max.toFixed(0)}°F
                     </span>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
