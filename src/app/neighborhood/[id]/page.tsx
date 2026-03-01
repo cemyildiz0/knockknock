@@ -299,6 +299,8 @@ export default function NeighborhoodPage() {
               </button>
             </div>
 
+            
+
             {reviews.length === 0 ? (
               <div className="bg-white rounded-xl border border-gray-100 p-10 text-center">
                 <MessageSquare size={32} className="text-brand-teal/20 mx-auto mb-3" />
@@ -374,6 +376,11 @@ export default function NeighborhoodPage() {
 
                 <button className="w-full mt-5 flex items-center justify-center gap-2 bg-brand-orange hover:bg-[#f0a44e] text-brand-navy font-semibold text-sm py-3 rounded-lg transition-colors">
                   <PenLine size={14} />
+                  Write a Review
+                </button>
+
+                {/* added button function */}
+                <button onClick={() => router.push(`/neighborhoods/${neighborhoodId}/write-review`)}>
                   Write a Review
                 </button>
               </div>

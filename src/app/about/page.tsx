@@ -120,10 +120,10 @@ export default function AboutPage() {
               Transparent data for one of life's biggest decisions.
             </h2>
             <p className="mt-5 text-gray-600 font-normal leading-relaxed">
-              Finding a home is already stressful. Finding the <em>right</em> neighborhood — one that fits your commute, your lifestyle, your budget, and your sense of community — is even harder. Most platforms show you glossy photos and vague walkability scores. We show you the truth.
+              Finding a home is already stressful. Finding the <em>right</em> neighborhood that fits your commute, your lifestyle, and your budget is even harder. Most platforms show you glossy photos and vague walkability scores. We show you the truth.
             </p>
             <p className="mt-4 text-gray-600 font-normal leading-relaxed">
-              Founded in 2022, Knock Knock was born from a frustration shared by millions of renters and buyers: the information gap between what a listing promises and what daily life actually feels like. We're here to close that gap.
+              Founded in 2026, Knock Knock was born from a frustration shared by millions of renters and buyers: the information gap between what a listing promises and what daily life actually feels like. We're here to close that gap.
             </p>
           </div>
 
