@@ -55,7 +55,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color] duration-300 ease-out border-b ${
+      className={`fixed top-0 left-0 right-0 z-[1001] transition-[background-color,border-color] duration-300 ease-out border-b ${
         solid
           ? "bg-brand-navy/95 backdrop-blur-md border-white/5"
           : "bg-transparent backdrop-blur-none border-transparent"
