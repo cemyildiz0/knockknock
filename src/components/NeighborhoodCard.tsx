@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Star, Heart, Sparkles } from "lucide-react";
+import { MapPin, Star, Heart, Sparkles, Navigation } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
 import { createClient } from "@/lib/supabase-browser";
@@ -14,6 +15,7 @@ interface Props {
   aiDescription?: string;
   aiScore?: number;
   featured?: boolean;
+  distanceMi?: number;
 }
 
 function StarBar({ rating, size = 14 }: { rating: number; size?: number }) {
@@ -41,9 +43,9 @@ function StarBar({ rating, size = 14 }: { rating: number; size?: number }) {
 
 export default function NeighborhoodCard({
   neighborhood,
-  aiDescription,
   aiScore,
   featured,
+  distanceMi,
 }: Props) {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -169,6 +171,15 @@ export default function NeighborhoodCard({
           <MapPin size={10} />
           {[city, state].filter(Boolean).join(", ")}
         </div>
+
+        {distanceMi != null && (
+          <div className="flex items-center gap-1 text-xs text-brand-teal/70 mb-2">
+            <Navigation size={10} />
+            {distanceMi < 0.1
+              ? "Less than 0.1 mi away"
+              : `${distanceMi.toFixed(1)} mi away`}
+          </div>
+        )}
 
         {rating != null && (
           <div className="flex items-center gap-1.5 mb-2">

@@ -5,6 +5,7 @@ import { MapPin, ChevronDown } from "lucide-react";
 import type { CommunityNeighborhood } from "@/types/community-neighborhood";
 import NeighborhoodCard from "@/components/NeighborhoodCard";
 import HeroSection from "@/components/home/Hero";
+import NearbyNeighborhoods from "@/components/home/NearbyNeighborhoods";
 
 interface PaginationMeta {
   page: number;
@@ -141,6 +142,8 @@ export default function Home() {
           </>
         )}
       </section>
+
+      <NearbyNeighborhoods />
     </div>
   );
 }

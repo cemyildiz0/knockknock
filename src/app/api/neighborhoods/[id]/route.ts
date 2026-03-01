@@ -96,43 +96,5 @@ export async function GET(
     }
   }
 
-  if (include.includes("reviews")) {
-    const { data: addressesInArea } = await supabase
-      .from("address_points")
-      .select("id")
-      .gte("latitude", (neighborhood.center_lat ?? 0) - 0.02)
-      .lte("latitude", (neighborhood.center_lat ?? 0) + 0.02)
-      .gte("longitude", (neighborhood.center_lng ?? 0) - 0.02)
-      .lte("longitude", (neighborhood.center_lng ?? 0) + 0.02)
-      .limit(1000);
-
-    if (addressesInArea && addressesInArea.length > 0) {
-      const addressIds = addressesInArea.map((a) => a.id);
-
-      const { data: reviews, count } = await supabase
-        .from("reviews")
-        .select("*, profiles(display_name)", { count: "exact" })
-        .in("address_point_id", addressIds)
-        .order("created_at", { ascending: false })
-        .limit(20);
-
-      const reviewData = reviews ?? [];
-      const total = count ?? 0;
-      const average =
-        total > 0
-          ? reviewData.reduce((sum, r) => sum + r.rating, 0) / total
-          : null;
-
-      result.reviews = {
-        data: reviewData,
-        average_rating:
-          average !== null ? Math.round(average * 100) / 100 : null,
-        total,
-      };
-    } else {
-      result.reviews = { data: [], average_rating: null, total: 0 };
-    }
-  }
-
   return NextResponse.json(result);
 }
