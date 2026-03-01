@@ -61,7 +61,6 @@ export default function HomeCard({ home, aiDescription, aiScore, featured, image
       {/* Image */}
       {image_url ? (
         <div className={`relative w-full overflow-hidden ${featured ? "h-64" : "h-40"}`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={image_url}
             alt={address_line1}

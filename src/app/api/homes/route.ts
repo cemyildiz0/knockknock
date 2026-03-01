@@ -9,10 +9,11 @@ export async function GET(request: Request) {
   const { data, error, count } = await supabase
     .from("homes")
     .select(
-      "id, address_line1, city, state, zip, property_type, living_area, beds, baths, levels, last_sale_price, last_sale_date, image_url, created_at, rating, review_count",
+      "id, address_line1, city, state, zip, property_type, living_area, beds, baths, levels, last_sale_price, last_sale_date, image_url, created_at, rating, review_count, latitude, longitude",
       { count: "exact" }
     )
     .order("created_at", { ascending: false })
+    .limit(2)
     .range(offset, offset + limit - 1);
 
   if (error) {
