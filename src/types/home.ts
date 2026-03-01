@@ -21,6 +21,10 @@ export interface Home {
   // Media
   image_url: string | null;
 
+  // Location
+  latitude: number | null;
+  longitude: number | null;
+
   // Reviews
   rating: number | null;
   review_count: number | null;
