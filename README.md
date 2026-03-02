@@ -10,7 +10,7 @@ Next.js 14 (App Router), TypeScript, Supabase (Postgres + Auth), Cerebras AI, Le
 
 ```bash
 npm install
-cp .env.example .env.local     fill in keys
+cp .env.example .env.local    # fill in keys
 npm run dev                   # http://localhost:3000
 ```
 
