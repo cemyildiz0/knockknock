@@ -74,7 +74,7 @@ src/
 │   ├── supabase-browser.ts       # Client-side Supabase (singleton)
 │   ├── supabase-route.ts         # Route handler Supabase (per-request, cookie-based)
 │   ├── supabase-server.ts        # Server-side Supabase (service role key)
-│   ├── supabase-middleware.ts     # Middleware Supabase (cookie refresh)
+│   ├── supabase-middleware.ts    # Middleware Supabase (cookie refresh)
 │   └── ...                       # geo-utils, auth helpers, livability colors/labels
 └── types/                        # TypeScript interfaces (Home, Review, Neighborhood, etc.)
 ```
